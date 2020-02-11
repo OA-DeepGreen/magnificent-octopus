@@ -279,7 +279,7 @@ class JATS(object):
     # 2020-02-11 TD : additional bibliographic items as properties
     @property
     def journal(self):
-        return xutil.xp_first_text(self.xml, "string(//journal-title-group/journal-title)", default="no journal title")
+        return xutil.xp_first_text(self.xml, "string(//journal-title)", default="no journal title")
 
     @property
     def volume(self):
