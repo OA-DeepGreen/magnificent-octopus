@@ -43,6 +43,36 @@ class EPMCMetadataXML(object):
         # 2018-01-30 TD : insert the string(...) to handle html-in-xml cases correctly
         return xutil.xp_first_text(self.xml, "string(title)", default="no title")
 
+    # 2020-02-11 TD : additional bibliographic items as properties
+    @property
+    def journal(self):
+        return xutil.xp_first_text(self.xml, "string(//journalInfo/journal/title)", default="no journal title")
+
+    @property
+    def volume(self):
+        return xutil.xp_first_text(self.xml, "//journalInfo/volume")
+
+    @property
+    def issue(self):
+        return xutil.xp_first_text(self.xml, "//journalInfo/issue")
+
+    @property
+    def fpage(self):
+        pi = xutil.xp_first_text(self.xml, "pageInfo")
+        if pi is not None:
+            return pi.split('-')[0]
+        return pi
+
+    @property
+    def lpage(self):
+        pi = xutil.xp_first_text(self.xml, "pageInfo")
+        if pi is not None and len(pi.split('-')) > 1:
+            lp = pi.split('-')[1]
+            if len(lp) > 0:
+                return lp
+        return pi
+    # 2020-02-11 TD : end of additional bibliographic items
+
     @property
     def publication_type(self):
         return xutil.xp_first_text(self.xml, "//pubTypeList/pubType")
@@ -201,6 +231,21 @@ class EPMCMetadata(dataobj.DataObj):
     def journal(self):
         return self._get_single("journalInfo.journal.title", self._utf8_unicode(), allow_coerce_failure=False)
 
+    # 2020-02-11 TD : additional bibliographic items as properties
+    @property
+    def volume(self):
+        return self._get_single("journalInfo.volume", self._utf8_unicode(), allow_coerce_failure=False)
+
+    @property
+    def issue(self):
+        return self._get_single("journalInfo.issue", self._utf8_unicode(), allow_coerce_failure=False)
+
+    # 2020-02-11 TD : we have to skip the items 'fpage' and 'lpage' here 
+    #                 since there is only an aggregate pageInfo available 
+    #                 ... and I don't know how to separate this within the _get_single() setting
+    #
+    # 2020-02-11 TD : end of additional bibliographic items as properties
+
     @property
     def essn(self):
         return self._get_single("journalInfo.journal.essn", self._utf8_unicode(), allow_coerce_failure=False)
@@ -230,6 +275,28 @@ class JATS(object):
         # 2018-01-31 TD : adding the default value "no title"
         # 2018-01-30 TD : insert the string(...) to handle html-in-xml cases correctly
         return xutil.xp_first_text(self.xml, "string(//title-group/article-title)", default="no title")
+
+    # 2020-02-11 TD : additional bibliographic items as properties
+    @property
+    def journal(self):
+        return xutil.xp_first_text(self.xml, "string(//journal-title-group/journal-title)", default="no journal title")
+
+    @property
+    def volume(self):
+        return xutil.xp_first_text(self.xml, "//article-meta/volume")
+
+    @property
+    def issue(self):
+        return xutil.xp_first_text(self.xml, "//article-meta/issue")
+
+    @property
+    def fpage(self):
+        return xutil.xp_first_text(self.xml, "//article-meta/fpage")
+
+    @property
+    def lpage(self):
+        return xutil.xp_first_text(self.xml, "//article-meta/lpage")
+    # 2020-02-11 TD : end of additional bibliographic items as properties
 
     @property
     def is_aam(self):
@@ -474,6 +541,28 @@ class RSCMetadataXML(object):
         # 2018-01-31 TD : adding the default value "no title"
         # 2018-01-30 TD : insert the string(...) to handle html-in-xml cases correctly
         return xutil.xp_first_text(self.xml, "string(//art-front/titlegrp/title)", default="no title")
+
+    # 2020-02-11 TD : additional bibliographic items as properties
+    @property
+    def journal(self):
+        return xutil.xp_first_text(self.xml, "string(//journalref/title[@type='full'])", default="no journal title")
+
+    @property
+    def volume(self):
+        return xutil.xp_first_text(self.xml, "//published[@type='print']/volumeref/link")
+
+    @property
+    def issue(self):
+        return xutil.xp_first_text(self.xml, "//published[@type='print']/issueref/link")
+
+    @property
+    def fpage(self):
+        return xutil.xp_first_text(self.xml, "//published[@type='print']/pubfront/fpage")
+
+    @property
+    def lpage(self):
+        return xutil.xp_first_text(self.xml, "//published[@type='print']/pubfront/lpage")
+    # 2020-02-11 TD : end of additional bibliographic items as properties
 
     @property
     def is_aam(self):
