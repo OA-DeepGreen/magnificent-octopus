@@ -1,20 +1,17 @@
-import uuid, json
-
-from flask import Blueprint, request, url_for, flash, redirect, make_response
+from flask import Blueprint, request, url_for, flash, redirect
 from flask import render_template, abort
-from flask.ext.login import login_user, logout_user, current_user, login_required
+from flask_login import login_user, logout_user, current_user, login_required
 
-from octopus.core import app
-from octopus.lib.webapp import ssl_required, request_wants_json, flash_with_url, is_safe_url
-from octopus.lib import mail
-from octopus.modules.account.factory import AccountFactory
-from octopus.modules.account import exceptions
+from standalone_octopus.core import app
+from standalone_octopus.lib.webapp import ssl_required, is_safe_url
+from standalone_octopus.modules.account.factory import AccountFactory
+from standalone_octopus.modules.account import exceptions
 
 blueprint = Blueprint('account', __name__)
 
 @app.login_manager.user_loader
 def load_account_for_login_manager(userid):
-    from octopus.modules.account.factory import AccountFactory
+    from standalone_octopus.modules.account.factory import AccountFactory
     acc = AccountFactory.get_model().pull(userid)
     return acc
 
@@ -138,7 +135,7 @@ def username(username):
         try:
             fc.legal()
         except exceptions.AccountException as e:
-            flash(e.message, "error")
+            flash(str(e), "error")
             return fc.render_template()
 
         # if we get to here, then update the user record
@@ -230,7 +227,7 @@ def index():
 @ssl_required
 def register():
     # access to registration may not be for the public
-    if current_user.is_anonymous() and not app.config.get("ACCOUNT_ALLOW_REGISTER", False):
+    if current_user.is_anonymous and not app.config.get("ACCOUNT_ALLOW_REGISTER", False):
         abort(404)
 
     if request.method == "GET":
@@ -247,7 +244,7 @@ def register():
         try:
             fc.legal()
         except exceptions.AccountException as e:
-            flash(e.message, "error")
+            flash(str(e), "error")
             return fc.render_template()
 
         # if we get to here, then create the user record

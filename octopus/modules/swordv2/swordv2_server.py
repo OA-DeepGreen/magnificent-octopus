@@ -2,9 +2,9 @@ from flask import Blueprint, Response, request, url_for, make_response, abort, r
 
 from functools import wraps
 
-from octopus.core import app
-from octopus.lib.webapp import ssl_required
-from octopus.lib.negotiator import ContentNegotiator
+from standalone_octopus.core import app
+from standalone_octopus.lib.webapp import ssl_required
+from standalone_octopus.lib.negotiator import ContentNegotiator
 
 from sss.spec import Errors, HttpHeaders, ValidationException
 from sss.core import Auth, SwordError, AuthException, DepositRequest, DeleteRequest
@@ -32,7 +32,7 @@ def raise_error(sword_error, additional_headers=None):
     resp.mimetype = "text/xml"
     resp.status_code = sword_error.status
     if additional_headers is not None:
-        for k, v in additional_headers.iteritems():
+        for k, v in additional_headers.items():
             resp.headers[k] = v
     return resp
 

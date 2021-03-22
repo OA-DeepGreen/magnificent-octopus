@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 import uuid
 
-from flask.ext.login import UserMixin
-from werkzeug import generate_password_hash, check_password_hash
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
-from octopus.core import app
-from octopus.modules.account.authorise import Authorise
-from octopus.modules.account import dao
-from octopus.lib import dataobj
+from standalone_octopus.core import app
+from standalone_octopus.modules.account.authorise import Authorise
+from standalone_octopus.modules.account import dao
+from standalone_octopus.lib import dataobj
 
 class BasicAccount(dataobj.DataObj, dao.BasicAccountDAO, UserMixin):
     """
@@ -65,7 +65,7 @@ class BasicAccount(dataobj.DataObj, dao.BasicAccountDAO, UserMixin):
             raise dataobj.DataSchemaException("You must provide a timeout or an expiry date for the reset token")
         if expires is None:
             expires = datetime.utcnow() + timedelta(0, timeout)
-        if not isinstance(expires, basestring):
+        if not isinstance(expires, str):
             expires = expires.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         self._set_single("reset_token", token, coerce=self._utf8_unicode())
@@ -102,7 +102,7 @@ class BasicAccount(dataobj.DataObj, dao.BasicAccountDAO, UserMixin):
             raise dataobj.DataSchemaException("You must provide a timeout or an expiry date for the activation token")
         if expires is None:
             expires = datetime.utcnow() + timedelta(0, timeout)
-        if not isinstance(expires, basestring):
+        if not isinstance(expires, str):
             expires = expires.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         self._set_single("activation_token", token, coerce=self._utf8_unicode())

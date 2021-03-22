@@ -2,11 +2,11 @@ import socket
 import time
 import sys
 import subprocess
-import codecs
-from octopus.modules import dictdiffer
+from standalone_octopus.modules import dictdiffer
 from unittest import TestCase
-from octopus.lib import plugin
+from standalone_octopus.lib import plugin
 import os
+
 
 class FunctionalTestServer(TestCase):
     """
@@ -25,18 +25,20 @@ class FunctionalTestServer(TestCase):
         self.test_server.terminate()
         os.remove(self.cfg_file)
 
+
 def make_config(cfg, filepath):
-    with codecs.open(filepath, "wb") as out:
-        for k, v in cfg.iteritems():
-            if isinstance(v, basestring):
+    with open(filepath, "wb") as out:
+        for k, v in cfg.items():
+            if isinstance(v, str):
                 # if the value is a string, wrap it in quotes
-                out.write(k + " = '" + v + "'\n")
+                out.write(f"{k} = '{v}'\n".encode('utf-8'))
             else:
                 # otherwise it's probably an int, float or bool so just stringify it
-                out.write(k + " = " + str(v) + "\n")
+                out.write(f"{k} = '{str(v)}'\n".encode('utf-8'))
 
             # NOTE: this would not handle dicts and lists, so you might get errors, in which
             # case you'll need to work out what to do next
+
 
 def get_first_free_port():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -92,29 +94,29 @@ def diff_dicts(d1, d2, d1_label='d1', d2_label='d2', print_unchanged=False):
     :return: nothing, prints results to STDOUT
     """
     differ = dictdiffer.DictDiffer(d1, d2)
-    print 'Added :: keys present in {d1} which are not in {d2}'.format(d1=d1_label, d2=d2_label)
-    print differ.added()
-    print
-    print 'Removed :: keys present in {d2} which are not in {d1}'.format(d1=d1_label, d2=d2_label)
-    print differ.removed()
-    print
-    print 'Changed :: keys which are the same in {d1} and {d2} but whose values are different'.format(d1=d1_label, d2=d2_label)
-    print differ.changed()
-    print
+    print('Added :: keys present in {d1} which are not in {d2}'.format(d1=d1_label, d2=d2_label))
+    print(differ.added())
+    print()
+    print('Removed :: keys present in {d2} which are not in {d1}'.format(d1=d1_label, d2=d2_label))
+    print(differ.removed())
+    print()
+    print('Changed :: keys which are the same in {d1} and {d2} but whose values are different'.format(d1=d1_label, d2=d2_label))
+    print(differ.changed())
+    print()
 
     if differ.changed():
-        print 'Changed values :: the values of keys which have changed. Format is as follows:'
-        print '  Key name:'
-        print '    value in {d1}'.format(d1=d1_label)
-        print '    value in {d2}'.format(d2=d2_label)
-        print
+        print('Changed values :: the values of keys which have changed. Format is as follows:')
+        print('  Key name:')
+        print('    value in {d1}'.format(d1=d1_label))
+        print('    value in {d2}'.format(d2=d2_label))
+        print()
         for key in differ.changed():
-            print ' ', key + ':'
-            print '   ', d1[key]
-            print '   ', d2[key]
-            print
-        print
+            print(' ', key + ':')
+            print('   ', d1[key])
+            print('   ', d2[key])
+            print()
+        print()
 
     if print_unchanged:
-        print 'Unchanged :: keys which are the same in {d1} and {d2} and whose values are also the same'.format(d1=d1_label, d2=d2_label)
-        print differ.unchanged()
+        print('Unchanged :: keys which are the same in {d1} and {d2} and whose values are also the same'.format(d1=d1_label, d2=d2_label))
+        print(differ.unchanged())

@@ -18,7 +18,7 @@ def load_class_raw(classpath):
     return klazz
 
 def load_class(classpath, cache_class_ref=True):
-    from octopus.core import app
+    from standalone_octopus.core import app
     klazz = app.config.get("PLUGIN_CLASS_REFS", {}).get(classpath)
     if klazz is not None:
         return klazz
@@ -49,7 +49,7 @@ def load_function_raw(fnpath):
     return fn
 
 def load_function(fnpath, cache_fn_ref=True):
-    from octopus.core import app
+    from standalone_octopus.core import app
     fn = app.config.get("PLUGIN_FN_REFS", {}).get(fnpath)
     if fn is not None:
         return fn

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from octopus.core import app, initialise
+from standalone_octopus.core import app, initialise
 import time, esprit
 
 # switch out the live index for the test index

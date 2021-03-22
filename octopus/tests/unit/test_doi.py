@@ -1,5 +1,5 @@
 import unittest
-from octopus.modules.identifiers import doi
+from standalone_octopus.modules.identifiers import doi
 
 class TestDOI(unittest.TestCase):
     def setUp(self):

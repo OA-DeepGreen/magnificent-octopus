@@ -88,7 +88,7 @@ ESDAO_DEFAULT_TIME_BOX_LOOKBACK = 0
 
 # path to directory where the "next", "prev" and "curr" files for routing
 # requests to the correct type are placed
-from octopus.lib import paths
+from standalone_octopus.lib import paths
 ESDAO_ROLLING_DIR = paths.rel2abs(__file__, "..", "..", "..", "..", "indexdir")
 
 # map of type names to DAOs which will have the publish() or rollback()

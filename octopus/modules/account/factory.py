@@ -1,5 +1,5 @@
-from octopus.core import app
-from octopus.lib import plugin
+from standalone_octopus.core import app
+from standalone_octopus.lib import plugin
 
 class AccountFactory(object):
 

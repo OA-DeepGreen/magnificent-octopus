@@ -1,11 +1,11 @@
-import json, urllib2
+import json, urllib.request, urllib.error, urllib.parse
 from esprit.models import Query
 
 from flask import Blueprint, request, abort, make_response
-from flask.ext.login import current_user
+from flask_login import current_user
 
-from octopus.core import app
-from octopus.lib import webapp, plugin
+from standalone_octopus.core import app
+from standalone_octopus.lib import webapp, plugin
 
 blueprint = Blueprint('query', __name__)
 
@@ -41,7 +41,7 @@ def query(path=None):
 
     # does the user have to be authenticated
     if cfg.get("auth"):
-        if current_user is None or current_user.is_anonymous():
+        if current_user is None or current_user.is_anonymous:
             abort(401)
 
         # if so, does the user require a role
@@ -78,7 +78,7 @@ def query(path=None):
 
         # if this is a POST, read the contents out of the body
         if request.method == "POST":
-            q = Query(request.json) if request.json else Query(dict(request.form).keys()[-1]) # FIXME: does this actually work?
+            q = Query(request.json) if request.json else Query(list(dict(request.form).keys())[-1]) # FIXME: does this actually work?
 
         # if there is a q param, make it into a query string query
         elif 'q' in request.values:
@@ -88,7 +88,7 @@ def query(path=None):
 
         # if there is a source param, load the json from it
         elif 'source' in request.values:
-            q = Query(json.loads(urllib2.unquote(request.values['source'])))
+            q = Query(json.loads(urllib.parse.unquote(request.values['source'])))
 
         # now run the query through the filters
         filters = app.config.get("QUERY_FILTERS", {})

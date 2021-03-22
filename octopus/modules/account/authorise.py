@@ -1,4 +1,4 @@
-from octopus.core import app
+from standalone_octopus.core import app
 
 class Authorise(object):
     @classmethod

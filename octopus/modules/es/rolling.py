@@ -1,6 +1,6 @@
 from flask import Blueprint, request, make_response
-from octopus.core import app
-from octopus.lib import webapp, plugin
+from standalone_octopus.core import app
+from standalone_octopus.lib import webapp, plugin
 import json
 
 blueprint = Blueprint('rolling', __name__)
@@ -30,7 +30,7 @@ def rollback():
 def status():
     map = app.config.get("ESDAO_ROLLING_PLUGINS", {})
     resp = {}
-    for k,v in map.iteritems():
+    for k,v in map.items():
         klazz = plugin.load_class(v)
         s = klazz.rolling_status()
         resp[k] = s
@@ -41,7 +41,7 @@ def status():
 @blueprint.route("/refresh", methods=["GET"])
 def refresh():
     map = app.config.get("ESDAO_ROLLING_PLUGINS", {})
-    for k, v in map.iteritems():
+    for k, v in map.items():
         klazz = plugin.load_class(v)
         klazz.rolling_refresh()
     return ""
