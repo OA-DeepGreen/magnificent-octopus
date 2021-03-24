@@ -1,6 +1,6 @@
 import esprit
-from standalone_octopus.lib import plugin
-from standalone_octopus.core import app
+from octopus.lib import plugin
+from octopus.core import app
 
 def _default_mapping():
     default_mapping = app.config.get("ELASTIC_SEARCH_DEFAULT_MAPPING")

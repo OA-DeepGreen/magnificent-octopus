@@ -4,10 +4,10 @@ import uuid
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from standalone_octopus.core import app
-from standalone_octopus.modules.account.authorise import Authorise
-from standalone_octopus.modules.account import dao
-from standalone_octopus.lib import dataobj
+from octopus.core import app
+from octopus.modules.account.authorise import Authorise
+from octopus.modules.account import dao
+from octopus.lib import dataobj
 
 class BasicAccount(dataobj.DataObj, dao.BasicAccountDAO, UserMixin):
     """

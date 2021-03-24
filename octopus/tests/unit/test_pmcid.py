@@ -1,5 +1,5 @@
 import unittest
-from standalone_octopus.modules.identifiers import pmcid
+from octopus.modules.identifiers import pmcid
 
 class TestPMCID(unittest.TestCase):
     def setUp(self):

@@ -1,4 +1,4 @@
-from standalone_octopus.core import app
+from octopus.core import app
 
 from datetime import datetime, timedelta
 

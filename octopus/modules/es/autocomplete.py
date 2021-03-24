@@ -1,11 +1,11 @@
-from standalone_octopus.core import app
+from octopus.core import app
 
 import esprit
 import json
 
 from flask import Blueprint, request, abort, make_response
 
-from standalone_octopus.lib import webapp, plugin
+from octopus.lib import webapp, plugin
 
 blueprint = Blueprint('autocomplete', __name__)
 

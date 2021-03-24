@@ -1,5 +1,5 @@
-from standalone_octopus.modules.account.factory import AccountFactory
-from standalone_octopus.lib import cli
+from octopus.modules.account.factory import AccountFactory
+from octopus.lib import cli
 import argparse, getpass
 
 class UserMod(cli.Script):

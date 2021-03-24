@@ -1,5 +1,5 @@
 import csv, codecs, re, os
-from standalone_octopus.core import app
+from octopus.core import app
 from io import StringIO
 from io import IOBase
 

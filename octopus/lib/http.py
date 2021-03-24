@@ -1,4 +1,4 @@
-from standalone_octopus.core import app
+from octopus.core import app
 import requests, time, urllib.request, urllib.parse, urllib.error, json
 from io import StringIO
 

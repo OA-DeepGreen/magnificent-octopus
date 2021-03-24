@@ -1,13 +1,13 @@
 from wtforms import Form, validators
 from wtforms.fields import StringField, HiddenField, PasswordField
 # from octopus.modules.form.validate import
-from standalone_octopus.modules.form.context import FormContext, Renderer
-from standalone_octopus.modules.account.factory import AccountFactory
-from standalone_octopus.modules.account import exceptions
+from octopus.modules.form.context import FormContext, Renderer
+from octopus.modules.account.factory import AccountFactory
+from octopus.modules.account import exceptions
 from flask_login import current_user
 from flask import url_for, request
-from standalone_octopus.core import app
-from standalone_octopus.lib import mail
+from octopus.core import app
+from octopus.lib import mail
 
 #####################################################################
 ## Login

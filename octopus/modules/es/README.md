@@ -10,7 +10,7 @@ can be used by the ES initialisation scripts.  Therefore, to implement a DAO whi
 that is required is your own type-specific implementation:
 
 ```python
-class MyDAO(standalone_octopus.modules.es.dao.ESDAO):
+class MyDAO(octopus.modules.es.dao.ESDAO):
     __type__ = "mytype"
 ```
 
@@ -74,7 +74,7 @@ This provides read-only access to configured query endpoints.
 Can be mounted into your app as a blueprint with:
 
 ```python
-    from standalone_octopus.modules.es.query import blueprint as query
+    from octopus.modules.es.query import blueprint as query
     app.register_blueprint(query, url_prefix="/query")
 ```
 

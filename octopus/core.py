@@ -97,7 +97,7 @@ def setup_error_email(app):
 
 def module_setup(app):
     # now run the additional app creation tasks from modules
-    from standalone_octopus.lib import plugin
+    from octopus.lib import plugin
     mods = app.config.get("SETUP_MODULES", [])
     for modpath in mods:
         fn = plugin.load_function_raw(modpath + ".setup_app")
@@ -111,7 +111,7 @@ app = create_app()
 # though note that all the imports are delayed because of the import circularity-avoidance
 
 def initialise():
-    from standalone_octopus.lib import plugin
+    from octopus.lib import plugin
     mods = app.config.get("INITIALISE_MODULES", [])
     for modpath in mods:
         fn = plugin.load_function_raw(modpath + ".initialise")

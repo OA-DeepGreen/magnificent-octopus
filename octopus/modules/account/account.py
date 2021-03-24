@@ -2,16 +2,16 @@ from flask import Blueprint, request, url_for, flash, redirect
 from flask import render_template, abort
 from flask_login import login_user, logout_user, current_user, login_required
 
-from standalone_octopus.core import app
-from standalone_octopus.lib.webapp import ssl_required, is_safe_url
-from standalone_octopus.modules.account.factory import AccountFactory
-from standalone_octopus.modules.account import exceptions
+from octopus.core import app
+from octopus.lib.webapp import ssl_required, is_safe_url
+from octopus.modules.account.factory import AccountFactory
+from octopus.modules.account import exceptions
 
 blueprint = Blueprint('account', __name__)
 
 @app.login_manager.user_loader
 def load_account_for_login_manager(userid):
-    from standalone_octopus.modules.account.factory import AccountFactory
+    from octopus.modules.account.factory import AccountFactory
     acc = AccountFactory.get_model().pull(userid)
     return acc
 

@@ -16,11 +16,11 @@ class TlsSMTPHandler(logging.Handler):
         else:
             raise ValueError("credentials must be a tuple: ('username', 'password')")
         self.fromaddr = fromaddr
-        if isinstance(toaddrs, basestring):
+        if isinstance(toaddrs, str):
             self.toaddrs = [toaddrs]
         else:
             self.toaddrs = toaddrs
-        if subject and isinstance(subject, basestring):
+        if subject and isinstance(subject, str):
             self.subject = subject
         else:
             raise ValueError("subject can't be blank and must be a string")

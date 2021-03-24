@@ -1,6 +1,6 @@
-from standalone_octopus.modules.es import dao
+from octopus.modules.es import dao
 from datetime import datetime
-from standalone_octopus.modules.account.exceptions import NonUniqueAccountException
+from octopus.modules.account.exceptions import NonUniqueAccountException
 
 def query_filter(q):
     """Function used by the query endpoint to ensure only the relevant account data is returned"""

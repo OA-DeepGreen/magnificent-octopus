@@ -1,4 +1,4 @@
-from standalone_octopus.lib import paths
+from octopus.lib import paths
 
 SWORDV2_SERVER_CONFIG = {
 

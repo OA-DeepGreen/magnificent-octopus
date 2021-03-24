@@ -1,2 +1,2 @@
-DEBUG_SERVER_HOST = "locahost"
+DEBUG_SERVER_HOST = "localhost"
 DEBUG_SERVER_PORT = 51234

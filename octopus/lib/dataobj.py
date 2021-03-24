@@ -1,4 +1,4 @@
-from standalone_octopus.lib import dates
+from octopus.lib import dates
 from copy import deepcopy
 import locale, json, urllib.parse
 
@@ -101,7 +101,7 @@ def to_isolang(output_format=None):
     :return:
     """
     # delayed import, since we may not always want to load the whole dataset for a dataobj
-    from standalone_octopus.lib import isolang as dataset
+    from octopus.lib import isolang as dataset
 
     # sort out the output format list
     if output_format is None:

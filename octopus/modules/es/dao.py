@@ -1,12 +1,12 @@
 import esprit
 from esprit import mappings
-from standalone_octopus.core import app
+from octopus.core import app
 import json as jsonlib
 from datetime import datetime
 import dateutil.relativedelta as relativedelta
 import os, threading
-from standalone_octopus.lib import plugin
-from standalone_octopus.modules.es.initialise import put_mappings, put_example
+from octopus.lib import plugin
+from octopus.modules.es.initialise import put_mappings, put_example
 
 class ESDAO(esprit.dao.DomainObject):
     __type__ = 'index'

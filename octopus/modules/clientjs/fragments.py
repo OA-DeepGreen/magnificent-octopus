@@ -1,7 +1,7 @@
 from flask import Blueprint, abort, render_template
 
-from standalone_octopus.core import app
-from standalone_octopus.lib import plugin
+from octopus.core import app
+from octopus.lib import plugin
 
 blueprint = Blueprint('fragments', __name__)
 

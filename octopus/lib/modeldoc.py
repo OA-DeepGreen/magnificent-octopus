@@ -1,4 +1,4 @@
-from standalone_octopus.lib import dates, plugin
+from octopus.lib import dates, plugin
 from datetime import datetime
 import json, codecs
 

@@ -1,6 +1,6 @@
-from standalone_octopus.core import app
-from standalone_octopus.modules.jper import models
-from standalone_octopus.lib import http, dates
+from octopus.core import app
+from octopus.modules.jper import models
+from octopus.lib import http, dates
 import json
 
 class JPERException(Exception):

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, make_response
-from standalone_octopus.core import app
-from standalone_octopus.lib import webapp, plugin
+from octopus.core import app
+from octopus.lib import webapp, plugin
 import json
 
 blueprint = Blueprint('rolling', __name__)

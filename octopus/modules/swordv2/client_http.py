@@ -1,5 +1,5 @@
 from sword2 import HttpLayer, HttpResponse
-from standalone_octopus.lib import http
+from octopus.lib import http
 import json
 from requests.auth import HTTPBasicAuth
 

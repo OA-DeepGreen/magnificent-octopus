@@ -4,7 +4,7 @@ from functools import wraps
 from flask import request, current_app, flash, redirect, send_from_directory, abort, render_template, make_response
 from urllib.parse import urlparse, urljoin
 
-from standalone_octopus.core import app
+from octopus.core import app
 
 # serve static files from multiple potential locations
 def custom_static(path):

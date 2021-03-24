@@ -1,5 +1,5 @@
-from standalone_octopus.lib import dataobj
-from standalone_octopus.lib import xml as xutil
+from octopus.lib import dataobj
+from octopus.lib import xml as xutil
 from lxml import etree
 
 class JATSException(Exception):

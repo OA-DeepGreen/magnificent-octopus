@@ -4,8 +4,8 @@ from esprit.models import Query
 from flask import Blueprint, request, abort, make_response
 from flask_login import current_user
 
-from standalone_octopus.core import app
-from standalone_octopus.lib import webapp, plugin
+from octopus.core import app
+from octopus.lib import webapp, plugin
 
 blueprint = Blueprint('query', __name__)
 

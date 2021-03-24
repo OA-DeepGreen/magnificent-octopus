@@ -1,6 +1,6 @@
 from flask import Blueprint, make_response, render_template
 
-from standalone_octopus.core import app
+from octopus.core import app
 
 blueprint = Blueprint('configjs', __name__)
 

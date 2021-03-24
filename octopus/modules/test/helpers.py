@@ -2,9 +2,9 @@ import socket
 import time
 import sys
 import subprocess
-from standalone_octopus.modules import dictdiffer
+from octopus.modules import dictdiffer
 from unittest import TestCase
-from standalone_octopus.lib import plugin
+from octopus.lib import plugin
 import os
 
 

@@ -1,8 +1,8 @@
-from standalone_octopus.core import app
-from standalone_octopus.lib import http
+from octopus.core import app
+from octopus.lib import http
 import urllib.request, urllib.parse, urllib.error, string
 from lxml import etree
-from standalone_octopus.modules.epmc import models
+from octopus.modules.epmc import models
 
 def quote(s, **kwargs):
     try:

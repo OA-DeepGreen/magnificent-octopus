@@ -2,9 +2,9 @@ from flask import Blueprint, Response, request, url_for, make_response, abort, r
 
 from functools import wraps
 
-from standalone_octopus.core import app
-from standalone_octopus.lib.webapp import ssl_required
-from standalone_octopus.lib.negotiator import ContentNegotiator
+from octopus.core import app
+from octopus.lib.webapp import ssl_required
+from octopus.lib.negotiator import ContentNegotiator
 
 from sss.spec import Errors, HttpHeaders, ValidationException
 from sss.core import Auth, SwordError, AuthException, DepositRequest, DeleteRequest

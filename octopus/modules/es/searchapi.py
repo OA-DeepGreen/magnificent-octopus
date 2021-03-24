@@ -1,8 +1,8 @@
 import esprit, json, re
-from standalone_octopus.core import app
+from octopus.core import app
 from flask import Blueprint, request, abort, make_response
-from standalone_octopus.lib import webapp, plugin
-from standalone_octopus.modules.es import dao
+from octopus.lib import webapp, plugin
+from octopus.modules.es import dao
 from datetime import datetime
 
 blueprint = Blueprint('searchapi', __name__)
