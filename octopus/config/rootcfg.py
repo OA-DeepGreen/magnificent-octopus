@@ -2,19 +2,19 @@
 # to the desired config files (in the order you want them loaded)
 CONFIG_FILES = [
     # octopus.lib config files
-    "octopus/config/cli.py",
-    "octopus/config/dates.py",
-    "octopus/config/http.py",
-    "octopus/config/mail.py",
-    "octopus/config/webapp.py",
+    "magnificent-octopus/octopus/config/cli.py",
+    "magnificent-octopus/octopus/config/dates.py",
+    "magnificent-octopus/octopus/config/http.py",
+    "magnificent-octopus/octopus/config/mail.py",
+    "magnificent-octopus/octopus/config/webapp.py",
 
     # octopus.module config files
-    "octopus/modules/account/settings.py",
-    "octopus/modules/clientjs/settings.py",
-    "octopus/modules/es/settings.py",
-    "octopus/modules/jper/settings.py",
-    "octopus/modules/store/settings.py",
-    "octopus/modules/swordv2/settings.py",
+    "magnificent-octopus/octopus/modules/account/settings.py",
+    "magnificent-octopus/octopus/modules/clientjs/settings.py",
+    "magnificent-octopus/octopus/modules/es/settings.py",
+    "magnificent-octopus/octopus/modules/jper/settings.py",
+    "magnificent-octopus/octopus/modules/store/settings.py",
+    "magnificent-octopus/octopus/modules/swordv2/settings.py",
 
     # local service configuration
     "config/service.py",
@@ -27,11 +27,11 @@ TEMPLATE_PATHS = [
     "service/templates",
 
     # octopus standard bootstrap layout templates
-    "octopus/templates",
+    "magnificent-octopus/octopus/templates",
 
     # octopus modules templates
-    "octopus/modules/account/templates",
-    "octopus/modules/clientjs/templates"
+    "magnificent-octopus/octopus/modules/account/templates",
+    "magnificent-octopus/octopus/modules/clientjs/templates"
 ]
 
 # absolute paths, or relative paths from the root directory, to the static file directories (in the order you want them looked at)
@@ -40,12 +40,12 @@ STATIC_PATHS = [
     "service/static",
 
     # octopus standard static directory - contains all vendor JS, plus the core Octopus JS
-    "octopus/static",
+    "magnificent-octopus/octopus/static",
 
     # octopus modules static directories
-    "octopus/modules/account/static",
-    "octopus/modules/clientjs/static",
-    "octopus/modules/es/static"
+    "magnificent-octopus/octopus/modules/account/static",
+    "magnificent-octopus/octopus/modules/clientjs/static",
+    "magnificent-octopus/octopus/modules/es/static"
 ]
 
 # module import paths for the app initialisation modules that need to run at flask app creation
