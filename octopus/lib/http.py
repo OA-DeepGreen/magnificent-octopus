@@ -1,6 +1,6 @@
 from octopus.core import app
 import requests, time, urllib.request, urllib.parse, urllib.error, json
-from io import StringIO
+from io import BytesIO
 
 class SizeExceededException(Exception):
     pass
@@ -204,7 +204,7 @@ class MockResponse(object):
         self.status_code = status
         self._body = body
         self._headers = headers
-        self._stream = StringIO(body)
+        self._stream = BytesIO(body)
 
     def json(self):
         return json.loads(self._body)
