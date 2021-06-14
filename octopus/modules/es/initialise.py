@@ -2,37 +2,53 @@ import esprit
 from octopus.lib import plugin
 from octopus.core import app
 
-def _default_mapping():
-    default_mapping = app.config.get("ELASTIC_SEARCH_DEFAULT_MAPPING")
-    if default_mapping is None:
-        return None
+def get_mappings(app):
+    """Get the full set of mappings required for the app"""
 
-    if "mappings" in default_mapping:
-        return default_mapping
+    # LEGACY DEFAULT MAPPINGS
+    mappings = app.config.get("ELASTIC_SEARCH_DEFAULT_MAPPING", {})
 
-    if "_default_" in default_mapping:
-        return {"mappings" : default_mapping}
+    # TYPE SPECIFIC MAPPINGS
+    # get the list of classes which carry the type-specific mappings to be loaded
+    mapping_daos = app.config.get("ELASTIC_SEARCH_MAPPINGS", [])
 
-    return {"mappings" : {"_default_" : default_mapping}}
+    # load each class and execute the "mappings" function to get the mappings that need to be imported
+    for cname in mapping_daos:
+        klazz = plugin.load_class_raw(cname)
+        mappings[klazz.__type__] = klazz().mappings()
 
-def put_mappings(mappings):
-    # make a connection to the index
-    conn = esprit.raw.Connection(app.config['ELASTIC_SEARCH_HOST'], app.config['ELASTIC_SEARCH_INDEX'])
+    return mappings
 
+
+def mutate_mapping(conn, type, mapping):
+    """ When we are using an index-per-type connection change the mappings to be keyed 'doc' rather than the type """
+    if conn.index_per_type:
+        try:
+            mapping[esprit.raw.INDEX_PER_TYPE_SUBSTITUTE] = mapping.pop(type)
+        except KeyError:
+            # Allow this mapping through unaltered if it isn't keyed by type
+            pass
+    return
+
+
+def put_mappings(conn, mappings):
     # get the ES version that we're working with
-    es_version = app.config.get("ELASTIC_SEARCH_VERSION", "0.90.13")
+    es_version = app.config.get("ELASTIC_SEARCH_VERSION", "1.7.5")
 
-    # for each mapping (a class may supply multiple), create them in the index
-    for key, mapping in mappings.items():
+    # for each mapping (a class may supply multiple), create a mapping, or mapping and index
+    for key, mapping in iter(mappings.items()):
+        mutate_mapping(conn, key, mapping)
+        ix = conn.index
         if not esprit.raw.type_exists(conn, key, es_version=es_version):
-            r = esprit.raw.put_mapping(conn, key, mapping, es_version=es_version)
-            print("Creating ES Type+Mapping for", key, "; status:", r.status_code)
+            r = esprit.raw.put_mapping(conn, key, mapping[esprit.raw.INDEX_PER_TYPE_SUBSTITUTE], make_index=True, es_version=es_version)
+            print("Creating ES Type + Mapping in index {0} for {1}; status: {2}".format(ix, key, r.status_code))
         else:
-            print("ES Type+Mapping already exists for", key)
+            print("ES Type + Mapping already exists in index {0} for {1}".format(ix, key))
+
 
 def put_example(type, example):
     # make a connection to the index
-    conn = esprit.raw.Connection(app.config['ELASTIC_SEARCH_HOST'], app.config['ELASTIC_SEARCH_INDEX'])
+    conn = esprit.raw.Connection(app.config['ELASTIC_SEARCH_HOST'], app.config['ELASTIC_SEARCH_INDEX'], index_per_type=app.config['ELASTIC_INDEX_PER_TYPE'])
 
     # get the ES version that we're working with
     es_version = app.config.get("ELASTIC_SEARCH_VERSION", "0.90.13")
@@ -44,64 +60,26 @@ def put_example(type, example):
     else:
         print("Not Initialising from document - ES Type+Mapping already exists for", type)
 
+
 def initialise():
-    # if we are not to initialise the index, stop here
     if not app.config.get("INITIALISE_INDEX", False):
+        app.logger.warn('INITIALISE_INDEX config var is not True, initialise index command cannot run')
         return
 
-    # create the index itself if it needs creating
-    conn = esprit.raw.Connection(app.config['ELASTIC_SEARCH_HOST'], app.config['ELASTIC_SEARCH_INDEX'])
-    if not esprit.raw.index_exists(conn):
-        print("Creating ES Index; host:" + str(conn.host) + " port:" + str(conn.port) + " db:" + str(conn.index))
-        default_mapping = _default_mapping()
-        if default_mapping is not None:
-            print("Applying default mapping to index")
-        esprit.raw.create_index(conn, mapping=default_mapping)
-    else:
-        print("ES Index Already Exists; host:" + str(conn.host) + " port:" + str(conn.port) + " db:" + str(conn.index))
+    # get the app mappings
+    conn = esprit.raw.Connection(app.config['ELASTIC_SEARCH_HOST'], app.config['ELASTIC_SEARCH_INDEX'], index_per_type=app.config['ELASTIC_INDEX_PER_TYPE'])
+    mappings = get_mappings(app)
+    # Send the mappings to ES
+    put_mappings(conn, mappings)
 
-    # get the list of classes which carry the type-specific mappings to be loaded
-    mapping_daos = app.config.get("ELASTIC_SEARCH_MAPPINGS", [])
-
-    # get the ES version that we're working with
-    es_version = app.config.get("ELASTIC_SEARCH_VERSION", "0.90.13")
-
-    # load each class and execute the "mappings" function to get the mappings
-    # that need to be imported
-    for cname in mapping_daos:
-        klazz = plugin.load_class_raw(cname)
-        mappings = klazz.mappings()
-        put_mappings(mappings)
-        """
-        # for each mapping (a class may supply multiple), create them in the index
-        for key, mapping in mappings.iteritems():
-            if not esprit.raw.type_exists(conn, key, es_version=es_version):
-                r = esprit.raw.put_mapping(conn, key, mapping, es_version=es_version)
-                print "Creating ES Type+Mapping for", key, "; status:", r.status_code
-            else:
-                print "ES Type+Mapping already exists for", key
-        """
-
-    # get the list of classes which will give us example docs to load
     example_daos = app.config.get("ELASTIC_SEARCH_EXAMPLE_DOCS", [])
-
     for cname in example_daos:
         klazz = plugin.load_class_raw(cname)
         example = klazz.example()
         type = klazz.get_write_type()
         put_example(type, example)
 
-        """
-        if not esprit.raw.type_exists(conn, type, es_version=es_version):
-            example.save()
-            example.delete()
-            print "Initialising ES Type+Mapping from document for", type
-        else:
-            print "Not Initialising from document - ES Type+Mapping already exists for", type
-        """
-
     self_inits = app.config.get("ELASTIC_SEARCH_SELF_INIT", [])
-
     for cname in self_inits:
         klazz = plugin.load_class_raw(cname)
         klazz.self_init()

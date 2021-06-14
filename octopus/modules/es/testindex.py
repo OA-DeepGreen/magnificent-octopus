@@ -6,7 +6,7 @@ import time, esprit
 app.config['ELASTIC_SEARCH_INDEX'] = app.config['ELASTIC_SEARCH_TEST_INDEX']
 
 # if a test on a previous run has totally failed and tearDown has not run, then make sure the index is gone first
-TEST_CONN = esprit.raw.Connection(app.config.get('ELASTIC_SEARCH_HOST'), app.config.get('ELASTIC_SEARCH_INDEX'))
+TEST_CONN = esprit.raw.Connection(app.config.get('ELASTIC_SEARCH_HOST'), app.config.get('ELASTIC_SEARCH_INDEX'), index_per_type=app.config['ELASTIC_INDEX_PER_TYPE'])
 esprit.raw.delete(TEST_CONN)
 time.sleep(1)
 
