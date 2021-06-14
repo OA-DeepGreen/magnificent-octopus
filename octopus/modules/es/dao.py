@@ -406,7 +406,7 @@ class TimeBoxedTypeESDAO(ESDAO):
     # FIXME: this is just a placeholder, we're not doing a proper impl of this yet
     # should the dynamic type be checked for existence, and initialised
     # with a mapping or an example document
-    __init_dynamic_type__ = False
+    __init_dynamic_type__ = True
 
     FORMAT_MAP = {
         "year" : "%Y",
@@ -438,11 +438,8 @@ class TimeBoxedTypeESDAO(ESDAO):
         # if might be that the type does not yet exist, in which case we
         # may need to create it
         if cls.__init_dynamic_type__:
-            # FIXME: we don't have the use case for this yet, so it's just a placeholder
-            # ultimately we'll probably want to factor the type initialisation stuff out of
-            # octopus.modules.es.initialise so that we can re-use it here
-            pass
-
+            # initialising the type with the default dynamic mapping
+            put_mappings(cls.__conn__, {wt: {wt: mappings.default_mapping()}})
         return wt
 
     ######################################################
