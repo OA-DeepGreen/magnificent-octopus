@@ -107,7 +107,7 @@ def search():
 
     # unpack the results and pull out the search metadata
     obs = esprit.raw.unpack_json_result(res)
-    total = res.get("hits", {}).get("total", 0)
+    total = res.get("hits", {}).get("total", {}).get("value", 0)
 
     # optionally filter the result objects as per the config
     filter = app.config.get("SEARCH_RESULT_FILTER")
