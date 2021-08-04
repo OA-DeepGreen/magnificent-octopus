@@ -10,7 +10,7 @@ from octopus.modules.es.initialise import put_mappings, put_example
 
 class ESDAO(esprit.dao.DomainObject):
     __type__ = 'index'
-    __conn__ = esprit.raw.Connection(app.config.get('ELASTIC_SEARCH_HOST'), app.config.get('ELASTIC_SEARCH_INDEX'))
+    __conn__ = esprit.raw.Connection(app.config.get('ELASTIC_SEARCH_HOST'), app.config.get('ELASTIC_SEARCH_INDEX'), index_per_type=app.config['ELASTIC_INDEX_PER_TYPE'])
     __es_version__ = app.config.get("ELASTIC_SEARCH_VERSION")
 
     #####################################################
@@ -21,7 +21,7 @@ class ESDAO(esprit.dao.DomainObject):
         esv = cls.__es_version__
         if esv is None:
             esv = es_version
-        super(ESDAO, cls).delete_by_query(query, conn=conn, es_version=esv, type=type)
+        super(ESDAO, cls).delete_by_query(conn, cls.__type__, query, es_version=esv)
 
     def save(self, **kwargs):
         self.prep()
@@ -32,17 +32,8 @@ class ESDAO(esprit.dao.DomainObject):
 
     @classmethod
     def mappings(cls):
-        return {
-            cls.__type__ : mappings.for_type(
-                cls.__type__,
-                    mappings.properties(mappings.type_mapping("location", "geo_point")),
-                    mappings.dynamic_templates(
-                    [
-                        mappings.EXACT,
-                    ]
-                )
-            )
-        }
+        # DEFINES LEGACY DEFAULT MAPPINGS
+        return mappings.mappings(cls.__type__)
 
     @classmethod
     def example(cls):
@@ -58,8 +49,27 @@ class ESDAO(esprit.dao.DomainObject):
     def prep(self):
         pass
 
+    # @classmethod
+    # def get_mappings(cls):
+    #     """Get the full set of mappings required for the app"""
+    #     # This is also defined in octopus.modules.es.initialise. DRY!
+    #
+    #     # LEGACY DEFAULT MAPPINGS
+    #     mappings = app.config["ELASTIC_SEARCH_DEFAULT_MAPPING"]
+    #
+    #     # TYPE SPECIFIC MAPPINGS
+    #     # get the list of classes which carry the type-specific mappings to be loaded
+    #     mapping_daos = app.config.get("ELASTIC_SEARCH_MAPPINGS", [])
+    #
+    #     # load each class and execute the "mappings" function to get the mappings that need to be imported
+    #     for cname in mapping_daos:
+    #         klazz = plugin.load_class_raw(cname)
+    #         mappings[klazz.__type__] = klazz().mappings()
+    #
+    #     return mappings
+
 class RollingTypeESDAO(ESDAO):
-    # should the dynamic type be checked for existance, and initialised
+    # should the dynamic type be checked for existence, and initialised
     # with a mapping or an example document
     __init_dynamic_type__ = False
 
@@ -394,9 +404,9 @@ class RollingTypeESDAO(ESDAO):
 class TimeBoxedTypeESDAO(ESDAO):
 
     # FIXME: this is just a placeholder, we're not doing a proper impl of this yet
-    # should the dynamic type be checked for existance, and initialised
+    # should the dynamic type be checked for existence, and initialised
     # with a mapping or an example document
-    __init_dynamic_type__ = False
+    __init_dynamic_type__ = True
 
     FORMAT_MAP = {
         "year" : "%Y",
@@ -428,11 +438,8 @@ class TimeBoxedTypeESDAO(ESDAO):
         # if might be that the type does not yet exist, in which case we
         # may need to create it
         if cls.__init_dynamic_type__:
-            # FIXME: we don't have the use case for this yet, so it's just a placeholder
-            # ultimately we'll probably want to factor the type initialisation stuff out of
-            # octopus.modules.es.initialise so that we can re-use it here
-            pass
-
+            # initialising the type with the default dynamic mapping
+            put_mappings(cls.__conn__, {wt: {wt: mappings.default_mapping()}})
         return wt
 
     ######################################################

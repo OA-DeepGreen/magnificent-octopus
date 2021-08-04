@@ -1,28 +1,27 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = 'octopus',
-    version = '1.0.0',
-    packages = find_packages(),
-    install_requires = [
-        "werkzeug==0.8.3",
-        "Flask==0.9",
-        "Flask-Login==0.1.3",
-        "requests",
+    name='octopus',
+    version='1.0.0-p3',
+    packages=find_packages(),
+    install_requires=[
+        "werkzeug==1.0.1",
+        "Flask==1.1.2",
+        "Flask-Login==0.5.0",
+        "requests==2.25.1",
         "esprit",
-        "simplejson",
-        "lxml==3.4.4",
-        "Flask-WTF==0.8.3",
-        "nose",
+        "simplejson==3.17.2",
+        "lxml==4.6.2",
+        "Flask-WTF==0.14.3",
+        "nose==1.3.7",
         "Flask-Mail==0.9.1",
-        "python-dateutil",
-        "unidecode"
+        "python-dateutil==2.8.1",
     ],
-    url = 'http://cottagelabs.com/',
-    author = 'Cottage Labs',
-    author_email = 'us@cottagelabs.com',
-    description = 'Magnificent Octopus - Flask application helper library',
-    classifiers = [
+    url='http://cottagelabs.com/',
+    author='Cottage Labs',
+    author_email='us@cottagelabs.com',
+    description='Magnificent Octopus - Flask application helper library',
+    classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: Developers',
