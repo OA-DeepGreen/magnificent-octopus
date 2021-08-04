@@ -18,11 +18,15 @@ class ValidationException(JPERException):
 class JPER(object):
 
     # FilesAndJATS = "http://router.jisc.ac.uk/packages/FilesAndJATS"
-    FilesAndJATS = "https://pubrouter.jisc.ac.uk/FilesAndJATS"
+    #FilesAndJATS = "https://pubrouter.jisc.ac.uk/FilesAndJATS"
+    FilesAndJATS = "https://datahub.deepgreen.org/FilesAndJATS"
 
     def __init__(self, api_key=None, base_url=None):
         self.api_key = api_key if api_key is not None else app.config.get("JPER_API_KEY")
         self.base_url = base_url if base_url is not None else app.config.get("JPER_BASE_URL")
+
+        if self.base_url.endswith("/"):
+            self.base_url = self.base_url[:-1]
 
     def _url(self, endpoint=None, id=None, auth=True, params=None, url=None):
         if url is None:
@@ -40,13 +44,19 @@ class JPER(object):
         if auth:
             if params is None:
                 params = {}
-            params["api_key"] = self.api_key
+            if self.api_key is not None and self.api_key != "":
+                params["api_key"] = self.api_key
 
         args = []
-        for k, v in params.iteritems():
-            args.append(k + "=" + http.quote(unicode(v)))
-        qs = "?" + "&".join(args)
-        url += qs
+        for k, v in params.items():
+            args.append(k + "=" + http.quote(str(v)))
+        if len(args) > 0:
+            if "?" not in url:
+                url += "?"
+            else:
+                url += "&"
+            qs = "&".join(args)
+            url += qs
 
         return url
 
@@ -61,17 +71,20 @@ class JPER(object):
         # get the url that we are going to send to
         url = self._url("validate")
 
+        # 2016-06-20 TD : switch SSL verification off
+        verify = False
+        
         resp = None
         if file_handle is None:
             # if there is no file handle supplied, send the metadata-only notification
-            resp = http.post(url, data=data, headers={"Content-Type" : "application/json"})
+            resp = http.post(url, data=data, headers={"Content-Type" : "application/json"}, verify=verify)
         else:
             # otherwise send both parts as a multipart message
             files = [
                 ("metadata", ("metadata.json", data, "application/json")),
                 ("content", ("content.zip", file_handle, "application/zip"))
             ]
-            resp = http.post(url, files=files)
+            resp = http.post(url, files=files, verify=verify)
 
         if resp is None:
             raise JPERConnectionException("Unable to communicate with the JPER API")
@@ -95,17 +108,20 @@ class JPER(object):
         # get the url that we are going to send to
         url = self._url("notification")
 
+        # 2016-06-20 TD : switch SSL verification off
+        verify = False
+        
         resp = None
         if file_handle is None:
             # if there is no file handle supplied, send the metadata-only notification
-            resp = http.post(url, data=data, headers={"Content-Type" : "application/json"})
+            resp = http.post(url, data=data, headers={"Content-Type" : "application/json"}, verify=verify)
         else:
             # otherwise send both parts as a multipart message
             files = [
                 ("metadata", ("metadata.json", data, "application/json")),
                 ("content", ("content.zip", file_handle, "application/zip"))
             ]
-            resp = http.post(url, files=files)
+            resp = http.post(url, files=files, verify=verify)
 
         if resp is None:
             raise JPERConnectionException("Unable to communicate with the JPER API")
@@ -132,8 +148,11 @@ class JPER(object):
         else:
             raise JPERException("You must supply either the notification_id or the location")
 
+        # 2016-06-20 TD : switch SSL verification off
+        verify = False
+
         # get the response object
-        resp = http.get(url)
+        resp = http.get(url, verify=verify)
 
         if resp is None:
             raise JPERConnectionException("Unable to communicate with the JPER API")
@@ -142,7 +161,7 @@ class JPER(object):
             return None
 
         if resp.status_code != 200:
-            raise JPERException("Received unexpected status code: {x}".format(x=resp.status_code))
+            raise JPERException("Received unexpected status code from {y}: {x}".format(x=resp.status_code, y=url))
 
         j = resp.json()
         if "provider" in j:
@@ -150,12 +169,15 @@ class JPER(object):
         else:
             return models.OutgoingNotification(j)
 
-    def get_content(self, url):
+    def get_content(self, url, chunk_size=8096):
         # just sort out the api_key
         url = self._url(url=url)
 
+        # 2016-06-20 TD : switch SSL verification off
+        verify = False
+        
         # get the response object
-        resp, content, downloaded_bytes = http.get_stream(url, read_stream=False)
+        resp, content, downloaded_bytes = http.get_stream(url, read_stream=False, verify=verify)
 
         # check for errors or problems with the response
         if resp is None:
@@ -165,10 +187,10 @@ class JPER(object):
             raise JPERAuthException("Could not authenticate with JPER with your API key")
 
         if resp.status_code != 200:
-            raise JPERException("Received unexpected status code: {x}".format(x=resp.status_code))
+            raise JPERException("Received unexpected status code from {y}: {x}".format(x=resp.status_code, y=url))
 
         # return the response object, in case the caller wants access to headers, etc.
-        return resp.raw, resp.headers
+        return resp.iter_content(chunk_size=chunk_size), resp.headers
 
     def list_notifications(self, since, page=None, page_size=None, repository_id=None):
         # check that the since date is valid, and get it into the right format
@@ -192,8 +214,11 @@ class JPER(object):
         # get the url, which may contain the repository id if it is not None
         url = self._url("routed", id=repository_id, params=params)
 
+        # 2016-06-20 TD : switch SSL verification off
+        verify = False
+        
         # get the response object
-        resp = http.get(url)
+        resp = http.get(url, verify=verify)
 
         # check for errors or problems with the response
         if resp is None:
@@ -206,7 +231,7 @@ class JPER(object):
             raise JPERException(resp.json().get("error"))
 
         if resp.status_code != 200:
-            raise JPERException("Received unexpected status code: {x}".format(x=resp.status_code))
+            raise JPERException("Received unexpected status code from {y}: {x} ".format(x=resp.status_code, y=url))
 
         # create the notification list object
         j = resp.json()

@@ -5,6 +5,11 @@ class NotificationMetadata(dataobj.DataObj):
     {
         "metadata" : {
             "title" : "<publication title>",
+            "journal" : "<journal title>",
+            "volume" : "<volume (number) of the journal>",
+            "issue" : "<issue (number) of the journal>",
+            "fpage" : "<first page number of article>",
+            "lpage" : "<last page number of article>",
             "version" : "<version of the record, e.g. AAM>",
             "publisher" : "<publisher of the content>",
             "source" : {
@@ -62,6 +67,13 @@ class NotificationMetadata(dataobj.DataObj):
                 "metadata" : {
                     "fields" : {
                         "title" : {"coerce" :"unicode"},
+                        # 2020-02-11 TD : additional bibliographic items (to be in sync with jper)
+                        "journal" : {"coerce" :"unicode"},
+                        "volume" : {"coerce" :"unicode"},
+                        "issue" : {"coerce" :"unicode"},
+                        "fpage" : {"coerce" :"unicode"},
+                        "lpage" : {"coerce" :"unicode"},
+                        # 2020-02-11 TD : end of additional bibliographic items
                         "version" : {"coerce" :"unicode"},
                         "publisher" : {"coerce" :"unicode"},
                         "type" : {"coerce" :"unicode"},
@@ -101,7 +113,7 @@ class NotificationMetadata(dataobj.DataObj):
                             "fields" : {
                                 "title" : {"coerce" : "unicode"},
                                 "type" : {"coerce" : "unicode"},
-                                "url" : {"coerce" : "url"},
+                                "url" : {"coerce" : "unicode"},
                                 "version" : {"coerce" : "unicode"}
                             }
                         },
@@ -160,6 +172,52 @@ class NotificationMetadata(dataobj.DataObj):
     @title.setter
     def title(self, val):
         self._set_single("metadata.title", val, coerce=dataobj.to_unicode(), allow_none=False, ignore_none=True)
+
+    #
+    # 2020-02-10 TD : additional bibliographic fields ("@property" as well as "@...setter")
+    #
+    @property
+    def journal(self):
+        return self._get_single("metadata.journal", coerce=dataobj.to_unicode())
+
+    @journal.setter
+    def journal(self, val):
+        self._set_single("metadata.journal", val, coerce=dataobj.to_unicode())
+
+    @property
+    def volume(self):
+        return self._get_single("metadata.volume", coerce=dataobj.to_unicode())
+
+    @volume.setter
+    def volume(self, val):
+        self._set_single("metadata.volume", val, coerce=dataobj.to_unicode())
+
+    @property
+    def issue(self):
+        return self._get_single("metadata.issue", coerce=dataobj.to_unicode())
+
+    @issue.setter
+    def issue(self, val):
+        self._set_single("metadata.issue", val, coerce=dataobj.to_unicode())
+
+    @property
+    def fpage(self):
+        return self._get_single("metadata.fpage", coerce=dataobj.to_unicode())
+
+    @fpage.setter
+    def fpage(self, val):
+        self._set_single("metadata.fpage", val, coerce=dataobj.to_unicode())
+
+    @property
+    def lpage(self):
+        return self._get_single("metadata.lpage", coerce=dataobj.to_unicode())
+
+    @lpage.setter
+    def lpage(self, val):
+        self._set_single("metadata.lpage", val, coerce=dataobj.to_unicode())
+    #
+    # 2020-02-11 TD : end of additional bibliographic fields
+    #
 
     @property
     def version(self):
@@ -260,7 +318,7 @@ class NotificationMetadata(dataobj.DataObj):
         # validate the object structure quickly
         allowed = ["name", "affiliation", "identifier"]
         for obj in objlist:
-            for k in obj.keys():
+            for k in list(obj.keys()):
                 if k not in allowed:
                     raise dataobj.DataSchemaException("Author object must only contain the following keys: {x}".format(x=", ".join(allowed)))
 
@@ -286,7 +344,7 @@ class NotificationMetadata(dataobj.DataObj):
         # validate the object structure quickly
         allowed = ["name", "grant_number", "identifier"]
         for obj in objlist:
-            for k in obj.keys():
+            for k in list(obj.keys()):
                 if k not in allowed:
                     raise dataobj.DataSchemaException("Project object must only contain the following keys: {x}".format(x=", ".join(allowed)))
 
@@ -318,7 +376,7 @@ class NotificationMetadata(dataobj.DataObj):
     def license(self, obj):
         # validate the object structure quickly
         allowed = ["title", "type", "url", "version"]
-        for k in obj.keys():
+        for k in list(obj.keys()):
             if k not in allowed:
                 raise dataobj.DataSchemaException("License object must only contain the following keys: {x}".format(x=", ".join(allowed)))
 

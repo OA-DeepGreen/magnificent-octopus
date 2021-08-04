@@ -1,19 +1,19 @@
 from octopus.core import app
-import requests, time, urllib, json
-from StringIO import StringIO
+import requests, time, urllib.request, urllib.parse, urllib.error, json
+from io import BytesIO
 
 class SizeExceededException(Exception):
     pass
 
 def quote(s, **kwargs):
     try:
-        return urllib.quote_plus(s, **kwargs)
+        return urllib.parse.quote_plus(s, **kwargs)
     except:
         pass
 
     try:
         utf = s.encode("utf-8")
-        return urllib.quote(utf, **kwargs)
+        return urllib.parse.quote(utf, **kwargs)
     except:
         return None
 
@@ -204,7 +204,7 @@ class MockResponse(object):
         self.status_code = status
         self._body = body
         self._headers = headers
-        self._stream = StringIO(body)
+        self._stream = BytesIO(body)
 
     def json(self):
         return json.loads(self._body)
@@ -221,9 +221,9 @@ class MockResponse(object):
     def headers(self):
         return self._headers if self._headers is not None else {}
 
-    def iter_content(self, num_bytes):
+    def iter_content(self, chunk_size=1024):
         while True:
-            b = self._stream.read(num_bytes)
+            b = self._stream.read(chunk_size)
             if b == "":
                 # we have reached the end of the file
                 break

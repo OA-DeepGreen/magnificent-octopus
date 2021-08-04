@@ -9,6 +9,7 @@ import re
 # AA99 9AA
 UKPCRX = "([a-zA-Z](?:(?:[a-zA-Z]?\d[a-zA-Z])|(?:\d{1,2})|(?:[a-zA-Z]\d{1,2}))\W?[0-9][a-zA-Z]{2})"
 
+
 def extract_all(source):
     return re.findall(UKPCRX, source)
 

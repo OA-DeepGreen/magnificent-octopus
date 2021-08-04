@@ -1,4 +1,4 @@
-from flask import render_template, request
+from flask import render_template
 from flask_mail import Mail, Message, Attachment
 from octopus.core import app
 
@@ -19,11 +19,6 @@ def send_mail(to, subject, fro=None, template_name=None, bcc=None, files=None, m
     #if app.config.get('CC_ALL_EMAILS_TO', None) is not None:
      #   bcc.append(app.config.get('CC_ALL_EMAILS_TO'))
 
-    # ensure everything is unicode
-    unicode_params = {}
-    for k, v in template_params.iteritems():
-        unicode_params[k] = to_unicode(v)
-
     # Get the body text from the msg_body parameter (for a contact form),
     # or render from a template.
     # TODO: This could also find and render an HTML template if present
@@ -32,11 +27,11 @@ def send_mail(to, subject, fro=None, template_name=None, bcc=None, files=None, m
         plaintext_body = msg_body
     else:
         try:
-            plaintext_body = render_template(template_name, **unicode_params)
+            plaintext_body = render_template(template_name, **template_params)
         except:
             appcontext = False
             with app.test_request_context():
-                plaintext_body = render_template(template_name, **unicode_params)
+                plaintext_body = render_template(template_name, **template_params)
 
     if fro is None:
         fro = app.config.get("MAIL_FROM_ADDRESS")
@@ -65,17 +60,6 @@ def send_mail(to, subject, fro=None, template_name=None, bcc=None, files=None, m
         with app.test_request_context():
             mail = Mail(app)
             mail.send(msg)
-
-def to_unicode(val):
-    if isinstance(val, unicode):
-        return val
-    elif isinstance(val, basestring):
-        try:
-            return val.decode("utf8", "replace")
-        except UnicodeDecodeError:
-            raise ValueError("Could not decode string")
-    else:
-        return val
 
 def make_attachment(filename, content_type, data, disposition=None, headers=None):
     """

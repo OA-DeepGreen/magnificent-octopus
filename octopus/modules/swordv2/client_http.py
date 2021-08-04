@@ -5,7 +5,9 @@ from requests.auth import HTTPBasicAuth
 
 class OctopusHttpResponse(HttpResponse):
     def __init__(self, *args, **kwargs):
-        self.resp = args[0]
+        self.resp = None
+        if len(args) > 0:
+            self.resp = args[0]
 
     def __getitem__(self, att):
         return self.get(att)
@@ -15,15 +17,19 @@ class OctopusHttpResponse(HttpResponse):
 
     @property
     def status(self):
+        if self.resp is None:
+            return 408  # timeout
         return self.resp.status_code
 
     def get(self, att, default=None):
         if att == "status":
-            return self.resp.status_code
+            return self.status
+        if self.resp is None:
+            return default
         return self.resp.headers.get(att, default)
 
     def keys(self):
-        return self.resp.headers.keys()
+        return list(self.resp.headers.keys())
 
 class OctopusHttpLayer(HttpLayer):
     def __init__(self, *args, **kwargs):
@@ -48,7 +54,7 @@ class OctopusHttpLayer(HttpLayer):
             resp = http.delete(uri, headers=headers, auth=self.auth)
 
         if resp is None:
-            return None, None
+            return OctopusHttpResponse(), ""
 
         return OctopusHttpResponse(resp), resp.text
 

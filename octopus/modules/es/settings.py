@@ -1,7 +1,6 @@
 ##############################################################
 # Basic ElasticSearch connectivity settings
 ##############################################################
-
 # index information to use in live
 ELASTIC_SEARCH_HOST = "http://localhost:9200"
 ELASTIC_SEARCH_INDEX = "db"
@@ -20,34 +19,7 @@ INITIALISE_INDEX = True
 
 # mapping that will be pushed into the _default_ field of the index
 # itself, and be applied to all types that are subsequently created
-ELASTIC_SEARCH_DEFAULT_MAPPING = {
-    'dynamic_templates': [
-        {
-            'default': {
-                'mapping': {
-                    'fields': {
-                        'exact': {
-                            'index': 'not_analyzed',
-                            'store': 'yes',
-                            'type': '{dynamic_type}'
-                        },
-                        '{name}': {
-                            'index': 'analyzed',
-                            'store': 'no',
-                            'type': '{dynamic_type}'
-                        }
-                    },
-                    'type': 'multi_field'
-                },
-                'match': '*',
-                'match_mapping_type': 'string'
-            }
-        }
-    ],
-    'properties': {
-        'location': {'type': 'geo_point'}
-    }
-}
+ELASTIC_SEARCH_DEFAULT_MAPPING = None
 
 # an array of DAO classes from which to retrieve the type-specific ES mappings
 # to be loaded into the index during initialisation.  You should override this

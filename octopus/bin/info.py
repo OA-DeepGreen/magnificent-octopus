@@ -1,10 +1,11 @@
 def print_config():
     from octopus.core import app
-    keys = app.config.keys()
+    keys = list(app.config.keys())
     keys.sort()
     for k in keys:
         v = app.config.get(k)
-        print k, "=", v
+        print(k, "=", v)
+
 
 if __name__ == "__main__":
     import argparse
