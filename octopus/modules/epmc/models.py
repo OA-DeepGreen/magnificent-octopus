@@ -312,7 +312,11 @@ class JATS(object):
             return None, None, None
         type = l.get("license-type")
         url = l.get("{http://www.w3.org/1999/xlink}href")
-
+        # get license href for bmj
+        if not url:
+            url_data = self.xml.xpath("//license/ali:license_ref",namespaces={'ali':'http://www.niso.org/schemas/ali/1.0/'})
+            if len(url_data) > 0:
+                url = url_data[0].text
         # get the paragraph(s) describing the licence
         para = self.xml.xpath("//license/license-p")
         out = ""
