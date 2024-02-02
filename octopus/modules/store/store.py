@@ -221,7 +221,11 @@ class StoreJper(Store):
             app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' backup file')
         except:
             pass
-        requests.put(cpath)
+        r = requests.post(cpath)
+        try:
+            return r.json()
+        except:
+            return ''
 
     def delete_backups(self, container_id, target_name):
         cpath = os.path.join(self.url, 'backup', container_id)
