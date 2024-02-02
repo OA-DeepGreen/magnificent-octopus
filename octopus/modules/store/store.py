@@ -199,6 +199,40 @@ class StoreJper(Store):
             pass
         requests.delete(cpath)
 
+    def list_backups(self, container_id, target_name):
+        cpath = os.path.join(self.url, 'backup', container_id)
+        if target_name is not None:
+            cpath = os.path.join(cpath, target_name)
+        try:
+            app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' get backup list')
+        except:
+            pass
+        r = requests.get(cpath)
+        try:
+            return r.json()
+        except:
+            return []
+
+    def backup(self, container_id, target_name):
+        cpath = os.path.join(self.url, 'backup', container_id)
+        if target_name is not None:
+            cpath = os.path.join(cpath, target_name)
+        try:
+            app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' backup file')
+        except:
+            pass
+        requests.put(cpath)
+
+    def delete_backups(self, container_id, target_name):
+        cpath = os.path.join(self.url, 'backup', container_id)
+        if target_name is not None:
+            cpath = os.path.join(cpath, target_name)
+        try:
+            app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' delete backups')
+        except:
+            pass
+        requests.delete(cpath)
+
 
 class TempStore(StoreLocal):
     def __init__(self):
