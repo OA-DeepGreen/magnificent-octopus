@@ -492,7 +492,9 @@ class JATS(object):
                         affs.append(norm)
 
             # 2023-08-31 STL: additionally, fetch ref ids from the "rid" attribute in "contrib" element
-            if c.get("rid") != "":
+            # 2023-12-18 FG: fixed NoneType error
+
+            if c.get("rid") is not None:
                 for affid in c.get("rid").split():
                     xp = "//aff[@id='" + affid + "']"
                     aff_elements = self.xml.xpath(xp)
