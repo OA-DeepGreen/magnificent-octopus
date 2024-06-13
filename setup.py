@@ -2,16 +2,16 @@ from setuptools import setup, find_packages
 
 setup(
     name='octopus',
-    version='1.0.0-p3',
+    version='1.0.1',
     packages=find_packages(),
     install_requires=[
-        "werkzeug==1.0.1",
-        "Flask==1.1.2",
-        "Flask-Login==0.5.0",
+        "werkzeug==2.3.3",
+        "Flask==2.3.2",
+        "Flask-Login==0.6.2",
         "requests==2.25.1",
         "esprit",
         "simplejson==3.17.2",
-        "lxml==4.6.2",
+        "lxml==4.6.3",
         "Flask-WTF==0.14.3",
         "nose==1.3.7",
         "Flask-Mail==0.9.1",
