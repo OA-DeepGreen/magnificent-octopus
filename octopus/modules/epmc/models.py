@@ -478,7 +478,28 @@ class JATS(object):
                 contents = ae.xpath("string()")
                 norm = " ".join(contents.split())
                 affs.append(norm)
-            #
+                # affiliation ids
+                aff_ids = ae.findall("institution-wrap/institution-id")
+                for aff_id in aff_ids:
+                    if aff_id.get("institution-id-type") == "Ringgold":
+                        val = con.get("ringgold", [])
+                        val.append(aff_id.text)
+                        con["ringgold"] = val
+                    elif aff_id.get("institution-id-type") == "ROR":
+                        txt = aff_id.text.strip("https://ror.org/")
+                        con["ror"] = txt
+                # affiliation ids for BMJ
+                aff_ids = ae.findall("institution")
+                for aff_id in aff_ids:
+                    r_id = aff_id.get("specific-use")
+                    if r_id is not None and r_id != "":
+                        r_id = r_id.lower()
+                        if r_id.startswith("ringgold_"):
+                            val = con.get("ringgold", [])
+                            val.append(r_id.strip("ringgold_"))
+                            con["ringgold"] = val
+                        elif r_id.startswith("ror_"):
+                            con["ror"] = r_id.strip("ror_")
 
             xrefs = c.findall("xref")
             for x in xrefs:
@@ -490,6 +511,28 @@ class JATS(object):
                         contents = ae.xpath("string()")
                         norm = " ".join(contents.split())
                         affs.append(norm)
+                        # affiliation ids
+                        aff_ids = ae.findall("institution-wrap/institution-id")
+                        for aff_id in aff_ids:
+                            if aff_id.get("institution-id-type") == "Ringgold":
+                                val = con.get("ringgold", [])
+                                val.append(aff_id.text)
+                                con["ringgold"] = val
+                            elif aff_id.get("institution-id-type") == "ROR":
+                                txt = aff_id.text.strip("https://ror.org/")
+                                con["ror"] = txt
+                        # affiliation ids for BMJ
+                        aff_ids = ae.findall("institution")
+                        for aff_id in aff_ids:
+                            r_id = aff_id.get("specific-use")
+                            if r_id is not None and r_id != "":
+                                r_id = r_id.lower()
+                                if r_id.startswith("ringgold_"):
+                                    val = con.get("ringgold", [])
+                                    val.append(r_id.strip("ringgold_"))
+                                    con["ringgold"] = val
+                                elif r_id.startswith("ror_"):
+                                    con["ror"] = r_id.strip("ror_")
 
             # 2023-08-31 STL: additionally, fetch ref ids from the "rid" attribute in "contrib" element
             # 2023-12-18 FG: fixed NoneType error
@@ -502,6 +545,28 @@ class JATS(object):
                         contents = ae.xpath("string()")
                         norm = " ".join(contents.split())
                         affs.append(norm)
+                        # affiliation ids
+                        aff_ids = ae.findall("institution-wrap/institution-id")
+                        for aff_id in aff_ids:
+                            if aff_id.get("institution-id-type") == "Ringgold":
+                                val = con.get("ringgold", [])
+                                val.append(aff_id.text)
+                                con["ringgold"] = val
+                            elif aff_id.get("institution-id-type") == "ROR":
+                                txt = aff_id.text.strip("https://ror.org/")
+                                con["ror"] = txt
+                        # affiliation ids for BMJ
+                        aff_ids = ae.findall("institution")
+                        for aff_id in aff_ids:
+                            r_id = aff_id.get("specific-use")
+                            if r_id is not None and r_id != "":
+                                r_id = r_id.lower()
+                                if r_id.startswith("ringgold_"):
+                                    val = con.get("ringgold", [])
+                                    val.append(r_id.strip("ringgold_"))
+                                    con["ringgold"] = val
+                                elif r_id.startswith("ror_"):
+                                    con["ror"] = r_id.strip("ror_")
 
             # 2016-11-07 TD : additionally, fetch the "global" affiliation(s) -- start
             xp = "//aff[not(@id)]"
@@ -510,11 +575,32 @@ class JATS(object):
                 contents = ae.xpath("string()")
                 norm = " ".join(contents.split())
                 affs.append(norm)
+                # affiliation ids
+                aff_ids = ae.findall("institution-wrap/institution-id")
+                for aff_id in aff_ids:
+                    if aff_id.get("institution-id-type") == "Ringgold":
+                        val = con.get("ringgold", [])
+                        val.append(aff_id.text)
+                        con["ringgold"] = val
+                    elif aff_id.get("institution-id-type") == "ROR":
+                        txt = aff_id.text.strip("https://ror.org/")
+                        con["ror"] = txt
+                # affiliation ids for BMJ - 4
+                aff_ids = ae.findall("institution")
+                for aff_id in aff_ids:
+                    r_id = aff_id.get("specific-use")
+                    if r_id is not None and r_id != "":
+                        r_id = r_id.lower()
+                        if r_id.startswith("ringgold_"):
+                            val = con.get("ringgold", [])
+                            val.append(r_id.strip("ringgold_"))
+                            con["ringgold"] = val
+                        elif r_id.startswith("ror_"):
+                            con["ror"] = r_id.strip("ror_")
             # 2016-11-07 TD : "global" affiliation(s) -- end
 
             if len(affs) > 0:
                 con["affiliations"] = affs
-
             if len(list(con.keys())) > 0:
                 obs.append(con)
 
