@@ -461,23 +461,23 @@ class JATS(object):
             if email is not None and email.text is not None:
                 con["email"] = email.text
 
-            # now do the affiliations (by value and by (x)reference)
+            # now do the affiliations 
+            # 2024-09-30 FG: refactoring, affiliation elements are now found via a separate function,
+            # then extracting for each an affiliation string and identifiers.
             affs = []
+            for ae in self._find_affiliations(c):
 
-            #
-            # 2018-08-02 TD : an author can have more than _one_ affiliation! Fixed.
-            #
-            #aff = c.find("aff")
-            #if aff is not None:
-            #    contents = aff.xpath("string()")
-            #    norm = " ".join(contents.split())
-            #    affs.append(norm)
-            #
-            aff_elements = c.findall("aff")
-            for ae in aff_elements:
-                contents = ae.xpath("string()")
-                norm = " ".join(contents.split())
-                affs.append(norm)
+                # get affiliation string, excluding labels appended to the front and the institution-id.
+                build_aff_string = ae.text if ae.text else ""
+                for element in ae.iterdescendants():
+                    if element.tag not in ["sub", "sup", "label", "institution-id"]:
+                        if element.text:
+                            build_aff_string += element.text
+                    if element.tail:
+                        build_aff_string += element.tail
+                normalized_affiliation_string = " ".join(build_aff_string.split())
+                affs.append(normalized_affiliation_string)
+
                 # affiliation ids
                 aff_ids = ae.findall("institution-wrap/institution-id")
                 for aff_id in aff_ids:
@@ -501,110 +501,44 @@ class JATS(object):
                         elif r_id.startswith("ror_"):
                             con["ror"] = r_id.strip("ror_")
 
-            xrefs = c.findall("xref")
-            for x in xrefs:
-                if x.get("ref-type") == "aff":
-                    affid = x.get("rid")
-                    xp = "//aff[@id='" + affid + "']"
-                    aff_elements = self.xml.xpath(xp)
-                    for ae in aff_elements:
-                        contents = ae.xpath("string()")
-                        norm = " ".join(contents.split())
-                        affs.append(norm)
-                        # affiliation ids
-                        aff_ids = ae.findall("institution-wrap/institution-id")
-                        for aff_id in aff_ids:
-                            if aff_id.get("institution-id-type") == "Ringgold":
-                                val = con.get("ringgold", [])
-                                val.append(aff_id.text)
-                                con["ringgold"] = val
-                            elif aff_id.get("institution-id-type") == "ROR":
-                                txt = aff_id.text.strip("https://ror.org/")
-                                con["ror"] = txt
-                        # affiliation ids for BMJ
-                        aff_ids = ae.findall("institution")
-                        for aff_id in aff_ids:
-                            r_id = aff_id.get("specific-use")
-                            if r_id is not None and r_id != "":
-                                r_id = r_id.lower()
-                                if r_id.startswith("ringgold_"):
-                                    val = con.get("ringgold", [])
-                                    val.append(r_id.strip("ringgold_"))
-                                    con["ringgold"] = val
-                                elif r_id.startswith("ror_"):
-                                    con["ror"] = r_id.strip("ror_")
-
-            # 2023-08-31 STL: additionally, fetch ref ids from the "rid" attribute in "contrib" element
-            # 2023-12-18 FG: fixed NoneType error
-
-            if c.get("rid") is not None:
-                for affid in c.get("rid").split():
-                    xp = "//aff[@id='" + affid + "']"
-                    aff_elements = self.xml.xpath(xp)
-                    for ae in aff_elements:
-                        contents = ae.xpath("string()")
-                        norm = " ".join(contents.split())
-                        affs.append(norm)
-                        # affiliation ids
-                        aff_ids = ae.findall("institution-wrap/institution-id")
-                        for aff_id in aff_ids:
-                            if aff_id.get("institution-id-type") == "Ringgold":
-                                val = con.get("ringgold", [])
-                                val.append(aff_id.text)
-                                con["ringgold"] = val
-                            elif aff_id.get("institution-id-type") == "ROR":
-                                txt = aff_id.text.strip("https://ror.org/")
-                                con["ror"] = txt
-                        # affiliation ids for BMJ
-                        aff_ids = ae.findall("institution")
-                        for aff_id in aff_ids:
-                            r_id = aff_id.get("specific-use")
-                            if r_id is not None and r_id != "":
-                                r_id = r_id.lower()
-                                if r_id.startswith("ringgold_"):
-                                    val = con.get("ringgold", [])
-                                    val.append(r_id.strip("ringgold_"))
-                                    con["ringgold"] = val
-                                elif r_id.startswith("ror_"):
-                                    con["ror"] = r_id.strip("ror_")
-
-            # 2016-11-07 TD : additionally, fetch the "global" affiliation(s) -- start
-            xp = "//aff[not(@id)]"
-            aff_elements = self.xml.xpath(xp)
-            for ae in aff_elements:
-                contents = ae.xpath("string()")
-                norm = " ".join(contents.split())
-                affs.append(norm)
-                # affiliation ids
-                aff_ids = ae.findall("institution-wrap/institution-id")
-                for aff_id in aff_ids:
-                    if aff_id.get("institution-id-type") == "Ringgold":
-                        val = con.get("ringgold", [])
-                        val.append(aff_id.text)
-                        con["ringgold"] = val
-                    elif aff_id.get("institution-id-type") == "ROR":
-                        txt = aff_id.text.strip("https://ror.org/")
-                        con["ror"] = txt
-                # affiliation ids for BMJ - 4
-                aff_ids = ae.findall("institution")
-                for aff_id in aff_ids:
-                    r_id = aff_id.get("specific-use")
-                    if r_id is not None and r_id != "":
-                        r_id = r_id.lower()
-                        if r_id.startswith("ringgold_"):
-                            val = con.get("ringgold", [])
-                            val.append(r_id.strip("ringgold_"))
-                            con["ringgold"] = val
-                        elif r_id.startswith("ror_"):
-                            con["ror"] = r_id.strip("ror_")
-            # 2016-11-07 TD : "global" affiliation(s) -- end
-
             if len(affs) > 0:
                 con["affiliations"] = affs
             if len(list(con.keys())) > 0:
                 obs.append(con)
 
         return obs
+
+    def _find_affiliations(self, contrib):
+        """returns all affiliation elements associated with a specific contributor. avoids duplicate affiliation extraction."""
+        aff_elements = []
+        # if "aff" is a descendant of contrib
+        for aff_el in contrib.findall('aff'):
+            aff_elements.append(aff_el)
+
+        # if "aff" is somewhere else in document
+        # link 1: linked through xref element
+        for xref in contrib.xpath('xref[@ref-type="aff"]'):
+            rid = xref.get("rid")
+            found = self.xml.xpath("//aff[@id='" + rid + "']")
+            if found is not None and found[0] not in aff_elements: 
+                aff_elements.append(found[0])
+
+        # link 2: linked via @rid attribute on contrib itself
+        if contrib.get("rid") is not None:
+            for rid in contrib.get("rid").split():
+                found = self.xml.xpath("//aff[@id='" + rid + "']")
+                if found is not None and found[0] not in aff_elements: 
+                    aff_elements.append(found[0])
+
+        # last option: affs not directly related to contrib.
+        # either "global" aff elements that have no identifier,
+        # or, if so far no affiliation at all has been found, take every aff element you can find.
+        xp = "//aff[not(@id)]" if len(aff_elements) > 0 else "//aff"
+        for aff_el in self.xml.xpath(xp):
+            if aff_el not in aff_elements:
+                aff_elements.append(aff_el)
+                
+        return aff_elements
 
     def tostring(self):
         if self.raw is not None:
