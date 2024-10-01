@@ -522,14 +522,24 @@ class JATS(object):
                 if found is not None and found[0] not in aff_elements: 
                     aff_elements.append(found[0])
 
-        # last option: affs not directly related to contrib.
-        # either "global" aff elements that have no identifier,
-        # or, if so far no affiliation at all has been found, take every aff element you can find.
-        xp = "//aff[not(@id)]" if len(aff_elements) > 0 else "//aff"
+        # lastly: affs not directly related to contrib.
+        # "global" aff elements that have no identifier
+        xp = "//aff[not(@id)]" 
         for aff_el in self.xml.xpath(xp):
             if aff_el not in aff_elements:
                 aff_elements.append(aff_el)
                 
+        # or, if no affiliation at all has been found, take every aff element you can find
+        # - as long as the whole file contains three or less affiliations. 
+        # this allows us to accomodate jats xml which does not properly link an external affiliation element, 
+        # when there is only one affiliation and the connection b/w author and affiliation is obvious to the reader.
+        # (the limit is a safeguard for articles with many affiliations, where one contributor may genuinely not have an affiliation.)
+        if len(aff_elements) == 0:
+            all_affiliations = self.xml.xpath("//aff")
+            if len(all_affiliations) < 4:
+                for aff_el in all_affiliations:
+                    if aff_el not in aff_elements:
+                        aff_elements.append(aff_el)
         return aff_elements
 
     def tostring(self):
