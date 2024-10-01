@@ -467,15 +467,7 @@ class JATS(object):
             affs = []
             for ae in self._find_affiliations(c):
 
-                # get affiliation string, excluding labels appended to the front and the institution-id.
-                build_aff_string = ae.text if ae.text else ""
-                for element in ae.iterdescendants():
-                    if element.tag not in ["sub", "sup", "label", "institution-id"]:
-                        if element.text:
-                            build_aff_string += element.text
-                    if element.tail:
-                        build_aff_string += element.tail
-                normalized_affiliation_string = " ".join(build_aff_string.split())
+                normalized_affiliation_string = " ".join(_create_aff_string(ae).split())
                 affs.append(normalized_affiliation_string)
 
                 # affiliation ids
@@ -812,3 +804,20 @@ class RSCMetadataXML(object):
             return self.raw
         elif self.xml is not None:
             return etree.tostring(self.xml)
+
+
+def _create_aff_string(aff_element, string=""):
+    """extracts affiliation data as string from aff fields,
+    excluding labels and institution-id data."""
+    if len(aff_element) == 0:
+        if aff_element.text is not None:
+            return str(string+aff_element.text)
+        else:
+            return string
+    else:
+        for element in aff_element.iterchildren():
+            if element.tag not in ["sub", "sup", "label", "institution-id"]:
+                string = _create_aff_string(element, string)
+            if element.tail is not None:
+                string += element.tail
+        return string
