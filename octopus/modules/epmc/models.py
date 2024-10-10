@@ -471,7 +471,7 @@ class JATS(object):
                 affs.append(normalized_affiliation_string)
 
                 # affiliation ids
-                 aff_ids = ae.findall("institution-wrap/institution-id")
+                aff_ids = ae.findall("institution-wrap/institution-id")
                 for aff_id in aff_ids:
                     if aff_id.get("institution-id-type").lower() == "ringgold":
                         val = con.get("ringgold", [])
