@@ -471,15 +471,17 @@ class JATS(object):
                 affs.append(normalized_affiliation_string)
 
                 # affiliation ids
-                aff_ids = ae.findall("institution-wrap/institution-id")
+                 aff_ids = ae.findall("institution-wrap/institution-id")
                 for aff_id in aff_ids:
-                    if aff_id.get("institution-id-type") == "Ringgold":
+                    if aff_id.get("institution-id-type").lower() == "ringgold":
                         val = con.get("ringgold", [])
                         val.append(aff_id.text)
                         con["ringgold"] = val
-                    elif aff_id.get("institution-id-type") == "ROR":
-                        txt = aff_id.text.strip("https://ror.org/")
-                        con["ror"] = txt
+                    elif aff_id.get("institution-id-type").lower() == "ror":
+                        txt = aff_id.text.lower().strip("https://ror.org/")
+                        val = con.get("ror", [])
+                        val.append(txt)
+                        con["ror"] = val
                 # affiliation ids for BMJ
                 aff_ids = ae.findall("institution")
                 for aff_id in aff_ids:
@@ -491,7 +493,9 @@ class JATS(object):
                             val.append(r_id.strip("ringgold_"))
                             con["ringgold"] = val
                         elif r_id.startswith("ror_"):
-                            con["ror"] = r_id.strip("ror_")
+                            val = con.get("ror", [])
+                            val.append(r_id.strip("ror_"))
+                            con["ror"] = val
 
             if len(affs) > 0:
                 con["affiliations"] = affs
@@ -818,16 +822,25 @@ class RSCMetadataXML(object):
 
 def _create_aff_string(aff_element, string=""):
     """extracts affiliation data as string from aff fields,
-    excluding labels and institution-id data."""
+    excluding labels and institution-id data.
+    recursively iterates through the element's children, 
+    adding their text content (as long as they are not sub, sup, label or institution-id elements) 
+    and the tail text after the element."""
+    if aff_element.text is not None:
+        # add element.text. if element has children, 
+        # this only selects the element text that comes before the first child element.
+        string += aff_element.text
     if len(aff_element) == 0:
-        if aff_element.text is not None:
-            return str(string+aff_element.text)
-        else:
+            # if no child elements are found, then simply return this string.
             return string
     else:
-        for element in aff_element.iterchildren():
-            if element.tag not in ["sub", "sup", "label", "institution-id"]:
-                string = _create_aff_string(element, string)
-            if element.tail is not None:
-                string += element.tail
+        for child_element in aff_element.iterchildren(): 
+            # if current element has children, iterate over them
+            if child_element.tag not in ["sub", "sup", "label", "institution-id"]:
+                # if child is not a label or identifier, call function again to add the text content
+                string = _create_aff_string(child_element, string)
+            if child_element.tail is not None:
+                # adds the text of the current element that appears after the current child_element, 
+                # cf. lxml tutorial for info on .text and .tail properties
+                string += child_element.tail
         return string
