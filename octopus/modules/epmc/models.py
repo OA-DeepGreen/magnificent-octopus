@@ -461,23 +461,15 @@ class JATS(object):
             if email is not None and email.text is not None:
                 con["email"] = email.text
 
-            # now do the affiliations (by value and by (x)reference)
+            # now do the affiliations 
+            # 2024-09-30 FG: refactoring, affiliation elements are now found via a separate function,
+            # then extracting for each an affiliation string and identifiers.
             affs = []
+            for ae in self._find_affiliations(c):
 
-            #
-            # 2018-08-02 TD : an author can have more than _one_ affiliation! Fixed.
-            #
-            #aff = c.find("aff")
-            #if aff is not None:
-            #    contents = aff.xpath("string()")
-            #    norm = " ".join(contents.split())
-            #    affs.append(norm)
-            #
-            aff_elements = c.findall("aff")
-            for ae in aff_elements:
-                contents = ae.xpath("string()")
-                norm = " ".join(contents.split())
-                affs.append(norm)
+                normalized_affiliation_string = " ".join(_create_aff_string(ae).split())
+                affs.append(normalized_affiliation_string)
+
                 # affiliation ids
                 aff_ids = ae.findall("institution-wrap/institution-id")
                 for aff_id in aff_ids:
@@ -505,122 +497,54 @@ class JATS(object):
                             val.append(r_id.strip("ror_"))
                             con["ror"] = val
 
-            xrefs = c.findall("xref")
-            for x in xrefs:
-                if x.get("ref-type") == "aff":
-                    affid = x.get("rid")
-                    xp = "//aff[@id='" + affid + "']"
-                    aff_elements = self.xml.xpath(xp)
-                    for ae in aff_elements:
-                        contents = ae.xpath("string()")
-                        norm = " ".join(contents.split())
-                        affs.append(norm)
-                        # affiliation ids
-                        aff_ids = ae.findall("institution-wrap/institution-id")
-                        for aff_id in aff_ids:
-                            if aff_id.get("institution-id-type").lower() == "ringgold":
-                                val = con.get("ringgold", [])
-                                val.append(aff_id.text)
-                                con["ringgold"] = val
-                            elif aff_id.get("institution-id-type").lower() == "ror":
-                                txt = aff_id.text.lower().strip("https://ror.org/")
-                                val = con.get("ror", [])
-                                val.append(txt)
-                                con["ror"] = val
-                        # affiliation ids for BMJ
-                        aff_ids = ae.findall("institution")
-                        for aff_id in aff_ids:
-                            r_id = aff_id.get("specific-use")
-                            if r_id is not None and r_id != "":
-                                r_id = r_id.lower()
-                                if r_id.startswith("ringgold_"):
-                                    val = con.get("ringgold", [])
-                                    val.append(r_id.strip("ringgold_"))
-                                    con["ringgold"] = val
-                                elif r_id.startswith("ror_"):
-                                    val = con.get("ror", [])
-                                    val.append(r_id.strip("ror_"))
-                                    con["ror"] = val
-
-            # 2023-08-31 STL: additionally, fetch ref ids from the "rid" attribute in "contrib" element
-            # 2023-12-18 FG: fixed NoneType error
-
-            if c.get("rid") is not None:
-                for affid in c.get("rid").split():
-                    xp = "//aff[@id='" + affid + "']"
-                    aff_elements = self.xml.xpath(xp)
-                    for ae in aff_elements:
-                        contents = ae.xpath("string()")
-                        norm = " ".join(contents.split())
-                        affs.append(norm)
-                        # affiliation ids
-                        aff_ids = ae.findall("institution-wrap/institution-id")
-                        for aff_id in aff_ids:
-                            if aff_id.get("institution-id-type").lower() == "ringgold":
-                                val = con.get("ringgold", [])
-                                val.append(aff_id.text)
-                                con["ringgold"] = val
-                            elif aff_id.get("institution-id-type").lower() == "ror":
-                                txt = aff_id.text.lower().strip("https://ror.org/")
-                                val = con.get("ror", [])
-                                val.append(txt)
-                                con["ror"] = val
-                        # affiliation ids for BMJ
-                        aff_ids = ae.findall("institution")
-                        for aff_id in aff_ids:
-                            r_id = aff_id.get("specific-use")
-                            if r_id is not None and r_id != "":
-                                r_id = r_id.lower()
-                                if r_id.startswith("ringgold_"):
-                                    val = con.get("ringgold", [])
-                                    val.append(r_id.strip("ringgold_"))
-                                    con["ringgold"] = val
-                                elif r_id.startswith("ror_"):
-                                    val = con.get("ror", [])
-                                    val.append(r_id.strip("ror_"))
-                                    con["ror"] = val
-
-            # 2016-11-07 TD : additionally, fetch the "global" affiliation(s) -- start
-            xp = "//aff[not(@id)]"
-            aff_elements = self.xml.xpath(xp)
-            for ae in aff_elements:
-                contents = ae.xpath("string()")
-                norm = " ".join(contents.split())
-                affs.append(norm)
-                # affiliation ids
-                aff_ids = ae.findall("institution-wrap/institution-id")
-                for aff_id in aff_ids:
-                    if aff_id.get("institution-id-type").lower() == "ringgold":
-                        val = con.get("ringgold", [])
-                        val.append(aff_id.text)
-                        con["ringgold"] = val
-                    elif aff_id.get("institution-id-type").lower() == "ror":
-                        txt = aff_id.text.lower().strip("https://ror.org/")
-                        val = con.get("ror", [])
-                        val.append(txt)
-                        con["ror"] = val
-                # affiliation ids for BMJ - 4
-                aff_ids = ae.findall("institution")
-                for aff_id in aff_ids:
-                    r_id = aff_id.get("specific-use")
-                    if r_id is not None and r_id != "":
-                        r_id = r_id.lower()
-                        if r_id.startswith("ringgold_"):
-                            val = con.get("ringgold", [])
-                            val.append(r_id.strip("ringgold_"))
-                            con["ringgold"] = val
-                        elif r_id.startswith("ror_"):
-                            val = con.get("ror", [])
-                            val.append(r_id.strip("ror_"))
-                            con["ror"] = val
-            # 2016-11-07 TD : "global" affiliation(s) -- end
-
             if len(affs) > 0:
                 con["affiliations"] = affs
             if len(list(con.keys())) > 0:
                 obs.append(con)
 
         return obs
+
+    def _find_affiliations(self, contrib):
+        """returns all affiliation elements associated with a specific contributor. avoids duplicate affiliation extraction."""
+        aff_elements = []
+        # if "aff" is a descendant of contrib
+        for aff_el in contrib.findall('aff'):
+            aff_elements.append(aff_el)
+
+        # if "aff" is somewhere else in document
+        # link 1: linked through xref element
+        for xref in contrib.xpath('xref[@ref-type="aff"]'):
+            rid = xref.get("rid")
+            found = self.xml.xpath("//aff[@id='" + rid + "']")
+            if found is not None and found[0] not in aff_elements: 
+                aff_elements.append(found[0])
+
+        # link 2: linked via @rid attribute on contrib itself
+        if contrib.get("rid") is not None:
+            for rid in contrib.get("rid").split():
+                found = self.xml.xpath("//aff[@id='" + rid + "']")
+                if found is not None and found[0] not in aff_elements: 
+                    aff_elements.append(found[0])
+
+        # lastly: affs not directly related to contrib.
+        # "global" aff elements that have no identifier
+        xp = "//aff[not(@id)]" 
+        for aff_el in self.xml.xpath(xp):
+            if aff_el not in aff_elements:
+                aff_elements.append(aff_el)
+                
+        # or, if no affiliation at all has been found, take every aff element you can find
+        # - as long as the whole file contains three or less affiliations. 
+        # this allows us to accomodate jats xml which does not properly link an external affiliation element, 
+        # when there is only one affiliation and the connection b/w author and affiliation is obvious to the reader.
+        # (the limit is a safeguard for articles with many affiliations, where one contributor may genuinely not have an affiliation.)
+        if len(aff_elements) == 0:
+            all_affiliations = self.xml.xpath("//aff")
+            if len(all_affiliations) < 4:
+                for aff_el in all_affiliations:
+                    if aff_el not in aff_elements:
+                        aff_elements.append(aff_el)
+        return aff_elements
 
     def tostring(self):
         if self.raw is not None:
@@ -894,3 +818,29 @@ class RSCMetadataXML(object):
             return self.raw
         elif self.xml is not None:
             return etree.tostring(self.xml)
+
+
+def _create_aff_string(aff_element, string=""):
+    """extracts affiliation data as string from aff fields,
+    excluding labels and institution-id data.
+    recursively iterates through the element's children, 
+    adding their text content (as long as they are not sub, sup, label or institution-id elements) 
+    and the tail text after the element."""
+    if aff_element.text is not None:
+        # add element.text. if element has children, 
+        # this only selects the element text that comes before the first child element.
+        string += aff_element.text
+    if len(aff_element) == 0:
+            # if no child elements are found, then simply return this string.
+            return string
+    else:
+        for child_element in aff_element.iterchildren(): 
+            # if current element has children, iterate over them
+            if child_element.tag not in ["sub", "sup", "label", "institution-id"]:
+                # if child is not a label or identifier, call function again to add the text content
+                string = _create_aff_string(child_element, string)
+            if child_element.tail is not None:
+                # adds the text of the current element that appears after the current child_element, 
+                # cf. lxml tutorial for info on .text and .tail properties
+                string += child_element.tail
+        return string
