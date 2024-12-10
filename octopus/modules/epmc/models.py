@@ -842,5 +842,5 @@ def _create_aff_string(aff_element, string=""):
             if child_element.tail is not None:
                 # adds the text of the current element that appears after the current child_element, 
                 # cf. lxml tutorial for info on .text and .tail properties
-                string += child_element.tail
+                string += " " + child_element.tail
         return " ".join(string.split())
