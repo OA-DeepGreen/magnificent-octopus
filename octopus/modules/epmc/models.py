@@ -829,10 +829,10 @@ def _create_aff_string(aff_element, string=""):
     if aff_element.text is not None:
         # add element.text. if element has children, 
         # this only selects the element text that comes before the first child element.
-        string += aff_element.text
+        string += " " + aff_element.text
     if len(aff_element) == 0:
             # if no child elements are found, then simply return this string.
-            return string
+            return " ".join(string.split())
     else:
         for child_element in aff_element.iterchildren(): 
             # if current element has children, iterate over them
@@ -842,5 +842,5 @@ def _create_aff_string(aff_element, string=""):
             if child_element.tail is not None:
                 # adds the text of the current element that appears after the current child_element, 
                 # cf. lxml tutorial for info on .text and .tail properties
-                string += child_element.tail
-        return string
+                string += " " + child_element.tail
+        return " ".join(string.split())
