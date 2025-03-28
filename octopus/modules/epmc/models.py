@@ -473,15 +473,17 @@ class JATS(object):
                 # affiliation ids
                 aff_ids = ae.findall("institution-wrap/institution-id")
                 for aff_id in aff_ids:
-                    if aff_id.get("institution-id-type").lower() == "ringgold":
-                        val = con.get("ringgold", [])
-                        val.append(aff_id.text)
-                        con["ringgold"] = val
-                    elif aff_id.get("institution-id-type").lower() == "ror":
-                        txt = aff_id.text.lower().strip("https://ror.org/")
-                        val = con.get("ror", [])
-                        val.append(txt)
-                        con["ror"] = val
+                    if aff_id.get("institution-id-type") and aff_id.get("institution-id-type").lower() == "ringgold":
+                        if aff_id.text:
+                            val = con.get("ringgold", [])
+                            val.append(aff_id.text)
+                            con["ringgold"] = val
+                    elif aff_id.get("institution-id-type") and aff_id.get("institution-id-type").lower() == "ror":
+                        if aff_id.text:
+                            txt = aff_id.text.lower().strip("https://ror.org/")
+                            val = con.get("ror", [])
+                            val.append(txt)
+                            con["ror"] = val
                 # affiliation ids for BMJ
                 aff_ids = ae.findall("institution")
                 for aff_id in aff_ids:
