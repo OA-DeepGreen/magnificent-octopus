@@ -112,10 +112,10 @@ class StoreJper(Store):
         r = requests.get(cpath)
         if r.status_code != 200:
             requests.put(cpath)
-            msg = f"{msg_path} container to be created {str(r.status_code)}"
+            msg = f"{msg_path} container to be created {r.status_code}"
             app.logger.debug(msg)
         else:
-            msg = f"{msg_path} container already exists {str(r.status_code)}"
+            msg = f"{msg_path} container already exists {r.status_code}"
             app.logger.debug(msg)
 
         tpath = os.path.join(cpath, target_name)
