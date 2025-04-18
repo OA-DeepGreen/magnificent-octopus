@@ -208,6 +208,16 @@ class StoreJper(Store):
             return r.json()
         except:
             return ''
+        
+    def list_file_paths(self, container_id):
+        cpath = os.path.join(self.url, 'existing_files', container_id)
+        app.logger.info('Store - list_file_paths:' + container_id + ' ' + cpath)
+        r = requests.get(cpath)
+        try:
+            return r.json()
+        except:
+            return []
+
 
     def delete_backups(self, container_id, target_name):
         cpath = os.path.join(self.url, 'backup', container_id)
