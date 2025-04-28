@@ -210,7 +210,7 @@ class StoreJper(Store):
             return ''
         
     def list_file_paths(self, container_id):
-        cpath = os.path.join(self.url, 'existing_files', container_id)
+        cpath = os.path.join(self.url, 'list_files', container_id)
         app.logger.info('Store - list_file_paths:' + container_id + ' ' + cpath)
         r = requests.get(cpath)
         try:
