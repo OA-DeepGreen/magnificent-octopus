@@ -2,4 +2,4 @@
 # (i.e. target this file with the -r switch on pip).
 
 # install esprit
--e git+https://github.com/OA-DeepGreen/esprit.git@b56f825af0715c7efa36de0e5dff4bc80418707d#egg=esprit
+-e git+https://github.com/OA-DeepGreen/esprit.git@ebead66bd64ff24172bd8aaccb9247576c45949c#egg=esprit
