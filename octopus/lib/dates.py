@@ -1,6 +1,7 @@
 from octopus.core import app
 
 from datetime import datetime, timedelta
+import dateutil
 
 def parse(s, format=None, guess=True):
     s = s.strip()
@@ -17,6 +18,11 @@ def parse(s, format=None, guess=True):
             return datetime.strptime(s, f)
         except ValueError as e:
             pass
+
+    try:
+        return dateutil.parser.parse(s)
+    except:
+        pass
 
     raise ValueError("Unable to parse {x} with any known format".format(x=s))
 
