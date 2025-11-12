@@ -515,16 +515,15 @@ class JATS(object):
 
         # if "aff" is somewhere else in document
         # link 1: linked through xref element
-        for xref in contrib.xpath('xref[@ref-type="aff"]'):
-            rid = xref.get("rid")
+        for rid in contrib.xpath('xref[@ref-type="aff"]/@rid'):
             for aff_el in self.xml.xpath("//aff[@id='" + rid + "']"):
                 aff_elements.append(aff_el)
 
         # link 2: linked via @rid attribute on contrib itself
-        if contrib.get("rid") is not None:
-            for rid in contrib.get("rid").split():
-                for aff_el in self.xml.xpath("//aff[@id='" + rid + "']"):
-                    aff_elements.append(aff_el)
+        for rid in contrib.get("rid", "").split():
+            for aff_el in self.xml.xpath("//aff[@id='" + rid + "']"):
+                aff_elements.append(aff_el)
+
 
         # lastly: affs not directly related to contrib.
         # "global" aff elements that have no identifier
