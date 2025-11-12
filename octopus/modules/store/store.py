@@ -108,50 +108,39 @@ class StoreJper(Store):
 
     def store(self, container_id, target_name, source_path=None, source_stream=None):
         cpath = os.path.join(self.url, container_id)
+        msg_path = f"Store - Container: {container_id} {cpath}"
         r = requests.get(cpath)
         if r.status_code != 200:
             requests.put(cpath)
-            try:
-                app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' container to be created ' + str(r.status_code))
-            except:
-                pass
+            msg = f"{msg_path} container to be created {r.status_code}"
+            app.logger.debug(msg)
         else:
-            try:
-                app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' container already exists ' + str(r.status_code))
-            except:
-                pass
+            msg = f"{msg_path} container already exists {r.status_code}"
+            app.logger.debug(msg)
 
         tpath = os.path.join(cpath, target_name)
-
+        msg_path = f"Store - Container: {container_id} {tpath}"
         if source_path is not None:
-            try:
-                app.logger.info('Store - Container:' + container_id + ' attempting to save source path to ' + tpath)
-            except:
-                pass
-            with open(source_path,'rb') as payload:
-                #headers = {'content-type': 'application/x-www-form-urlencoded'}
-                #r = requests.post(tpath, data=payload, verify=False, headers=headers)
+            msg = f"{msg_path}. Attempting to save source path"
+            app.logger.debug(msg)
+            with open(source_path, 'rb') as payload:
+                # headers = {'content-type': 'application/x-www-form-urlencoded'}
+                # r = requests.post(tpath, data=payload, verify=False, headers=headers)
                 r = requests.post(tpath, files={'file': payload})
         elif source_stream is not None:
-            try:
-                app.logger.info('Store - Container:' + container_id + ' attempting to save source stream to ' + tpath)
-            except:
-                pass
-            #headers = {'content-type': 'application/x-www-form-urlencoded'}
-            #r = requests.post(tpath, data=source_stream, verify=False, headers=headers)
+            msg = f"{msg_path}. Attempting to save source stream to"
+            app.logger.debug(msg)
+            # headers = {'content-type': 'application/x-www-form-urlencoded'}
+            # r = requests.post(tpath, data=source_stream, verify=False, headers=headers)
             r = requests.post(tpath, files={'file': source_stream})
-        try:
-            app.logger.info('Store - Container:' + container_id + ' ' + tpath + ' request resulted in ' + str(r.status_code))
-        except:
-            pass
+        msg = f"{msg_path}. Request resulted in {r.status_code}"
+        app.logger.debug(msg)
 
     def exists(self, container_id):
         cpath = os.path.join(self.url, container_id)
         r = requests.get(cpath)
-        try:
-            app.logger.info('Store - Container:' + container_id + ' checking existence ' + str(r.status_code))
-        except:
-            pass
+        msg_path = f"Store - Container: {container_id}"
+        app.logger.debug(f"{msg_path}. Checking existence {r.status_code}")
         if r.status_code == 200:
             try:
                 listing = r.json()
@@ -164,10 +153,8 @@ class StoreJper(Store):
     def list(self, container_id):
         cpath = os.path.join(self.url, container_id)
         r = requests.get(cpath)
-        try:
-            app.logger.info('Store - Container:' + container_id + ' listing requested and returned')
-        except:
-            pass
+        msg_path = f"Store - Container: {container_id}"
+        app.logger.debug(f"{msg_path}. Listing requested and returned")
         try:
             return r.json()
         except:
@@ -176,37 +163,31 @@ class StoreJper(Store):
     def get(self, container_id, target_name):
         cpath = os.path.join(self.url, container_id, target_name)
         r = requests.get(cpath, stream=True)
+        msg_path = f"Store - Container: {container_id} {cpath}"
         if r.status_code == 200:
-            try:
-                app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' retrieved and returning raw')
-            except:
-                pass
+            app.logger.debug(f"{msg_path}. Retrieved and returning raw")
             return r.raw
         else:
-            try:
-                app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' could not be retrieved')
-            except:
-                pass
+            app.logger.debug(f"{msg_path}. Could not be retrieved - {r.status_code}")
             return False
 
     def delete(self, container_id, target_name=None):
         cpath = os.path.join(self.url, container_id)
         if target_name is not None:
             cpath = os.path.join(cpath, target_name)
-        try:
-            app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' is being deleted')
-        except:
-            pass
-        requests.delete(cpath)
+        msg_path = f"Store - Container: {container_id} {cpath}"
+        r = requests.delete(cpath)
+        if 200 <= r.status_code < 300:
+            app.logger.debug(f"{msg_path}. Deleted {r.status_code}")
+        else:
+            app.logger.debug(f"{msg_path}. Could not delete - {r.status_code}")
 
     def list_backups(self, container_id, target_name):
         cpath = os.path.join(self.url, 'backup', container_id)
         if target_name is not None:
             cpath = os.path.join(cpath, target_name)
-        try:
-            app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' get backup list')
-        except:
-            pass
+        msg_path = f"Store - Container: {container_id} {cpath}"
+        app.logger.debug(f"{msg_path}. Get backup list")
         r = requests.get(cpath)
         try:
             return r.json()
@@ -217,25 +198,37 @@ class StoreJper(Store):
         cpath = os.path.join(self.url, 'backup', container_id)
         if target_name is not None:
             cpath = os.path.join(cpath, target_name)
-        try:
-            app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' backup file')
-        except:
-            pass
+        msg_path = f"Store - Container: {container_id} {cpath}"
         r = requests.post(cpath)
+        if 200 <= r.status_code < 300:
+            app.logger.debug(f"{msg_path}. File backup done {r.status_code}")
+        else:
+            app.logger.debug(f"{msg_path}. File backup error {r.status_code}")
         try:
             return r.json()
         except:
             return ''
+        
+    def list_file_paths(self, container_id):
+        cpath = os.path.join(self.url, 'list_files', container_id)
+        app.logger.info('Store - list_file_paths:' + container_id + ' ' + cpath)
+        r = requests.get(cpath)
+        try:
+            return r.json()
+        except:
+            return []
+
 
     def delete_backups(self, container_id, target_name):
         cpath = os.path.join(self.url, 'backup', container_id)
         if target_name is not None:
             cpath = os.path.join(cpath, target_name)
-        try:
-            app.logger.info('Store - Container:' + container_id + ' ' + cpath + ' delete backups')
-        except:
-            pass
-        requests.delete(cpath)
+        msg_path = f"Store - Container: {container_id} {cpath}"
+        r = requests.delete(cpath)
+        if 200 <= r.status_code < 300:
+            app.logger.debug(f"{msg_path}. Deleted backup {r.status_code}")
+        else:
+            app.logger.debug(f"{msg_path}. Could not delete backup - {r.status_code}")
 
 
 class TempStore(StoreLocal):
@@ -247,7 +240,8 @@ class TempStore(StoreLocal):
     def path(self, container_id, filename, must_exist=True):
         fpath = os.path.join(self.dir, container_id, filename)
         if not os.path.exists(fpath) and must_exist:
-            raise StoreException("Unable to create path for container {x}, file {y}".format(x=container_id, y=filename))
+            msg = f"Unable to create path for container {container_id}, file {filename}"
+            raise StoreException(msg)
         return fpath
 
     def list_container_ids(self):
