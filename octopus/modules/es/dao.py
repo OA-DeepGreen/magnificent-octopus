@@ -27,6 +27,33 @@ class ESDAO(esprit.dao.DomainObject):
         self.prep()
         super(ESDAO, self).save(**kwargs)
 
+    @classmethod
+    def get_all_facet_values(cls, facet, query_filter=None):
+        query = {
+            "query": {
+                "match_all": {}
+            },
+            "aggs": {
+                "facets": {
+                    "terms": {
+                        "field": facet
+                    }
+                }
+            },
+            "size": 0
+        }
+        if query_filter:
+            query["query"] = query_filter
+        res = cls.query(q=query)
+        facets = {}
+        if res.get('hits', {}).get('total', {}).get('value', 0) > 0:
+            for bucket in res.get('aggregations', {}).get('facets', {}).get('buckets', []):
+                key = bucket.get('key', None)
+                count = bucket.get('doc_count', None)
+                if key and count > 0:
+                    facets[key] = count
+        return facets
+
     ######################################################
     ## Octopus specific functions
 
