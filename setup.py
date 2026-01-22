@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='octopus',
-    version='2.0',
+    version='2.1',
     packages=find_packages(),
     install_requires=[
         "Werkzeug<3.0",  # FIXME: we have passwords using sha1 that are undecodable after 3.0,
