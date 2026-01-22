@@ -30,6 +30,9 @@ class ESDAO(esprit.dao.DomainObject):
     @classmethod
     def get_all_facet_values(cls, facet, query_filter=None):
         query = {
+            "query": {
+                "match_all": {}
+            },
             "aggs": {
                 "facets": {
                     "terms": {
@@ -42,7 +45,6 @@ class ESDAO(esprit.dao.DomainObject):
         if query_filter:
             query["query"] = query_filter
         res = cls.query(q=query)
-        res.aggregations()
         facets = {}
         if res.get('hits', {}).get('total', {}).get('value', 0) > 0:
             for bucket in res.get('aggregations', {}).get('facets', {}).get('buckets', []):
