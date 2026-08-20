@@ -1,7 +1,10 @@
+import os
+import shutil
+
+import requests
+
 from octopus.core import app
 from octopus.lib import plugin
-
-import os, shutil, requests
 
 
 class StoreException(Exception):
@@ -9,7 +12,6 @@ class StoreException(Exception):
 
 
 class StoreFactory(object):
-
     @classmethod
     def get(cls):
         """
@@ -33,7 +35,6 @@ class StoreFactory(object):
 
 
 class Store(object):
-
     def store(self, container_id, target_name, source_path=None, source_stream=None):
         pass
 
@@ -54,6 +55,7 @@ class StoreLocal(Store):
     """
     Primitive local storage system.  Use this for testing in place of remote store
     """
+
     def __init__(self):
         self.dir = app.config.get("STORE_LOCAL_DIR")
         if self.dir is None:
@@ -123,16 +125,16 @@ class StoreJper(Store):
         if source_path is not None:
             msg = f"{msg_path}. Attempting to save source path"
             app.logger.debug(msg)
-            with open(source_path, 'rb') as payload:
+            with open(source_path, "rb") as payload:
                 # headers = {'content-type': 'application/x-www-form-urlencoded'}
                 # r = requests.post(tpath, data=payload, verify=False, headers=headers)
-                r = requests.post(tpath, files={'file': payload})
+                r = requests.post(tpath, files={"file": payload})
         elif source_stream is not None:
             msg = f"{msg_path}. Attempting to save source stream to"
             app.logger.debug(msg)
             # headers = {'content-type': 'application/x-www-form-urlencoded'}
             # r = requests.post(tpath, data=source_stream, verify=False, headers=headers)
-            r = requests.post(tpath, files={'file': source_stream})
+            r = requests.post(tpath, files={"file": source_stream})
         msg = f"{msg_path}. Request resulted in {r.status_code}"
         app.logger.debug(msg)
 
@@ -181,9 +183,10 @@ class StoreJper(Store):
             app.logger.debug(f"{msg_path}. Deleted {r.status_code}")
         else:
             app.logger.debug(f"{msg_path}. Could not delete - {r.status_code}")
+        return r.status_code
 
     def list_backups(self, container_id, target_name):
-        cpath = os.path.join(self.url, 'backup', container_id)
+        cpath = os.path.join(self.url, "backup", container_id)
         if target_name is not None:
             cpath = os.path.join(cpath, target_name)
         msg_path = f"Store - Container: {container_id} {cpath}"
@@ -195,7 +198,7 @@ class StoreJper(Store):
             return []
 
     def backup(self, container_id, target_name):
-        cpath = os.path.join(self.url, 'backup', container_id)
+        cpath = os.path.join(self.url, "backup", container_id)
         if target_name is not None:
             cpath = os.path.join(cpath, target_name)
         msg_path = f"Store - Container: {container_id} {cpath}"
@@ -207,20 +210,19 @@ class StoreJper(Store):
         try:
             return r.json()
         except:
-            return ''
-        
+            return ""
+
     def list_file_paths(self, container_id):
-        cpath = os.path.join(self.url, 'list_files', container_id)
-        app.logger.info('Store - list_file_paths:' + container_id + ' ' + cpath)
+        cpath = os.path.join(self.url, "list_files", container_id)
+        app.logger.info("Store - list_file_paths:" + container_id + " " + cpath)
         r = requests.get(cpath)
         try:
             return r.json()
         except:
             return []
 
-
     def delete_backups(self, container_id, target_name):
-        cpath = os.path.join(self.url, 'backup', container_id)
+        cpath = os.path.join(self.url, "backup", container_id)
         if target_name is not None:
             cpath = os.path.join(cpath, target_name)
         msg_path = f"Store - Container: {container_id} {cpath}"
@@ -245,4 +247,6 @@ class TempStore(StoreLocal):
         return fpath
 
     def list_container_ids(self):
-        return [x for x in os.listdir(self.dir) if os.path.isdir(os.path.join(self.dir, x))]
+        return [
+            x for x in os.listdir(self.dir) if os.path.isdir(os.path.join(self.dir, x))
+        ]
