@@ -438,6 +438,8 @@ class JATS(object):
 
             # first see if there is a name we can pull out
             name = c.find("name")
+            if name is None:
+                name = c.find("string-name")
             if name is not None:
                 sn = name.find("surname")
                 # 2017-06-07 TD : catch if element tag is really empty!
